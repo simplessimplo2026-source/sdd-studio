@@ -8,10 +8,15 @@ const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 const localBindingConfig = {
   main: "./worker/index.ts",
   compatibility_flags: ["nodejs_compat"],
-  // Real D1/R2 resources are bound in the Cloudflare dashboard. Keeping this
-  // empty prevents the local preview placeholder from being deployed as a real
-  // database ID.
-  d1_databases: [],
+  // Production D1 binding. This ID is the real sdd-studio-db database created
+  // in the Cloudflare account (not a placeholder).
+  d1_databases: [
+    {
+      binding: "DB",
+      database_name: "sdd-studio-db",
+      database_id: "836ed48b-b73a-4cf3-8287-37e3622d7868",
+    },
+  ],
   r2_buckets: [],
 };
 
