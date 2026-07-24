@@ -4,6 +4,9 @@ import { clients, projectModules, projects } from "../../../db/schema";
 
 type CreateProjectPayload = {
   clientName?: string;
+  contactName?: string;
+  email?: string;
+  phone?: string;
   projectName?: string;
   packageType?: string;
   platform?: string;
@@ -58,7 +61,7 @@ export async function POST(request: Request) {
     const now = new Date();
     const clientId = crypto.randomUUID();
     const projectId = crypto.randomUUID();
-    await db.insert(clients).values({ id: clientId, name: clientName, createdAt: now, updatedAt: now });
+    await db.insert(clients).values({ id: clientId, name: clientName, contactName: body.contactName?.trim() || null, email: body.email?.trim() || null, phone: body.phone?.trim() || null, createdAt: now, updatedAt: now });
     await db.insert(projects).values({
       id: projectId,
       clientId,
