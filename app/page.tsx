@@ -256,7 +256,7 @@ export default function Home() {
 </div>
 <button className="new-project" onClick={() => setScreen("meeting")}>Usar em uma reunião</button>
 </section>
-<section className="package-grid">{[["Essencial", "Para sites e apps simples", "R$ 1.200", "Até 3 telas ou fluxos", "2 módulos incluídos", "Visual profissional baseado no design system", "Módulos extras cobrados à parte"], ["Profissional", "Para operações conectadas", "R$ 3.000", "Até 8 telas ou fluxos", "4 módulos incluídos", "Dashboard e relatórios essenciais", "Módulos extras cobrados à parte"], ["Premium", "Para sistemas completos", "R$ 5.000", "Até 15 telas ou fluxos", "8 módulos incluídos", "Experiência visual refinada", "Módulos extras cobrados à parte"]].map((item, index) => <article key={item[0]} className={`package-card ${index === 1 ? "featured" : ""}`}>
+<section className="package-grid">{[["Essencial", "Para sites e apps simples", "R$ 1.200", "Até 3 telas ou fluxos", "2 módulos incluídos", "Visual profissional baseado no design system", "Módulos extras cobrados à parte"], ["Profissional", "Para operações conectadas", "R$ 3.000", "Até 8 telas ou fluxos", "4 módulos incluídos", "Dashboard e relatórios essenciais", "Módulos extras cobrados à parte"], ["Premium", "Para sistemas completos", "R$ 5.000", "Até 15 telas ou fluxos", "8 módulos incluídos", "Experiência visual refinada", "Módulos extras cobrados à parte"]].map((item, index) => <article key={item[0]} className={`package-card ${(index === 0 ? "essential" : index === 1 ? "professional" : "premium") === packageType ? "featured" : ""}`}>
 <span className="package-number">0{index + 1}</span>
 <p className="eyebrow">PACOTE {item[0].toUpperCase()}</p>
 <h2>{item[0]}</h2>
@@ -381,15 +381,15 @@ export default function Home() {
 </div>
 <p>Selecione os módulos que fazem sentido para esta demanda.</p>
 </div>
-<div className="module-grid">{modules.map((item) => <button key={item.id} className={`module ${selected.includes(item.id) ? "selected" : ""}`} onClick={() => toggleModule(item.id)}>
+<div className="module-legend"><span className="included-dot">Incluído no pacote</span><span className="additional-dot">Adicional cobrado à parte</span></div><div className="module-grid">{modules.map((item) => { const selectedPosition = selected.indexOf(item.id); const moduleState = selectedPosition < 0 ? "" : selectedPosition < activePackage.includedModules ? "selected included" : "selected additional"; return <button key={item.id} className={`module ${moduleState}`} onClick={() => toggleModule(item.id)}>
 <span className="module-icon">{item.icon}</span>
 <span className="module-copy">
 <strong>{item.title}</strong>
 <small>{item.description}</small>
 </span>
-<span className="module-price">+{money.format(item.price)}</span>
+<span className="module-price">{selectedPosition >= 0 && selectedPosition < activePackage.includedModules ? "Incluído" : `+${money.format(item.price)}`}</span>
 <span className="check">✓</span>
-</button>)}</div>{selectedModules.filter((item) => item.fields).map((item) => <div className="detail-group" key={item.id}>
+</button>; })}</div>{selectedModules.filter((item) => item.fields).map((item) => <div className="detail-group" key={item.id}>
 <div>
 <p className="eyebrow">CONFIGURAÇÃO</p>
 <h3>{item.title}</h3>
