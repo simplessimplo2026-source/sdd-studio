@@ -16,6 +16,13 @@ type SavedProject = {
     estimatedValue: number;
     updatedAt: string;
 };
+type SavedDocument = {
+    id: string;
+    version: number;
+    kind: string;
+    content: string;
+    createdAt: string;
+};
 const modules: Module[] = [
   { id: "clients", icon: "C", title: "Clientes", description: "Cadastro, histórico e relacionamento.", price: 250, fields: ["Cadastro completo", "Histórico de atendimentos", "Segmentação", "Portal do cliente"] },
   { id: "finance", icon: "$", title: "Financeiro", description: "Contas, fluxo de caixa e cobranças.", price: 500, fields: ["Contas a pagar e receber", "Fluxo de caixa", "Orçamentos", "Comissões", "Boletos e Pix", "Conciliação bancária"] },
@@ -31,6 +38,11 @@ const modules: Module[] = [
   { id: "security", icon: "S", title: "Segurança", description: "Acesso, auditoria e proteção de dados.", price: 300, fields: ["Login e recuperação", "Dois fatores", "Log de auditoria", "LGPD e consentimento"] },
 ];
 const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+const packageRules = {
+    essential: { base: 1200, includedModules: 2, maxModules: 3, label: "Essencial" },
+    professional: { base: 3000, includedModules: 4, maxModules: 6, label: "Profissional" },
+    premium: { base: 5000, includedModules: 8, maxModules: Infinity, label: "Premium" },
+} as const;
 export default function Home() {
     const [screen, setScreen] = useState<"meeting" | "projects" | "catalog">("catalog");
     const [selected, setSelected] = useState<string[]>(["clients", "finance", "service"]);
@@ -42,19 +54,25 @@ export default function Home() {
     const [projectName, setProjectName] = useState("App de gestão operacional");
     const [platform, setPlatform] = useState("web_tablet");
     const [packageType, setPackageType] = useState("professional");
+    const [projectStatus, setProjectStatus] = useState("draft");
     const [estimatedWeeks, setEstimatedWeeks] = useState("6");
     const [notes, setNotes] = useState("O cliente precisa usar o sistema no tablet durante atendimentos externos. A equipe administrativa acompanha tudo pelo painel de gestão.");
     const [showSdd, setShowSdd] = useState(false);
     const [savedProjectId, setSavedProjectId] = useState<string | null>(null);
     const [projects, setProjects] = useState<SavedProject[]>([]);
+    const [documents, setDocuments] = useState<SavedDocument[]>([]);
     const [notice, setNotice] = useState("");
     const [saving, setSaving] = useState(false);
-    const selectedModules = modules.filter((item) => selected.includes(item.id));
-    const basePrice = 1200;
-    const packageFloor = packageType === "premium" ? 5000 : packageType === "professional" ? 3000 : 1200;
-    const packageOffer = packageType === "premium" ? "Até 15 telas, 8 módulos, automações e até 3 integrações." : packageType === "professional" ? "Até 8 telas, 4 módulos, dashboard, PWA e 1 integração." : "Até 3 telas, 1 objetivo principal e visual profissional.";
-    const total = useMemo(() => Math.min(5000, Math.max(packageFloor, basePrice + selectedModules.reduce((sum, item) => sum + item.price, 0))), [selectedModules, packageFloor]);
+    const selectedModules = selected.map((id) => modules.find((item) => item.id === id)).filter((item): item is Module => Boolean(item));
+    const activePackage = packageRules[packageType as keyof typeof packageRules] ?? packageRules.professional;
+    const basePrice = activePackage.base;
+    const includedModules = selectedModules.slice(0, activePackage.includedModules);
+    const additionalModules = selectedModules.slice(activePackage.includedModules);
+    const moduleLimitLabel = Number.isFinite(activePackage.maxModules) ? `${activePackage.maxModules} módulos` : "módulos sem limite";
+    const packageOffer = `${activePackage.includedModules} módulos incluídos; ${moduleLimitLabel} neste pacote. Itens extras são cobrados à parte.`;
+    const total = useMemo(() => basePrice + additionalModules.reduce((sum, item) => sum + item.price, 0), [additionalModules, basePrice]);
     const platformLabel = platform === "web" ? "Web" : platform === "mobile" ? "Aplicativo mobile" : "Web + Tablet (PWA)";
+    const statusLabel = ({ draft: "Em descoberta", proposal: "Proposta enviada", approved: "Aprovado", development: "Em desenvolvimento", completed: "Concluído" } as Record<string, string>)[projectStatus] ?? "Em descoberta";
     const sddText = `# SDD — ${clientName}\n\n## Visão do projeto\n${projectName}. Sistema de gestão com experiência otimizada para ${platformLabel.toLowerCase()}.\n\n## Dados do cliente\n- Empresa: ${clientName}\n- Contato: ${contactName || "A definir"}\n- E-mail: ${email || "A definir"}\n- Telefone: ${phone || "A definir"}\n\n## Contexto da reunião\n${notes}\n\n## Escopo\n- Pacote: ${packageType === "essential" ? "Essencial" : packageType === "premium" ? "Premium" : "Profissional"}\n- Plataforma: ${platformLabel}\n- Prazo estimado: ${estimatedWeeks} semanas\n\n## Módulos aprovados\n${selectedModules.map((item) => `- ${item.title}: ${item.description}${details[item.id]?.length ? ` (${details[item.id].join(", ")})` : ""}`).join("\n")}\n\n## Investimento estimado\n${money.format(total)}\n\n## Stack recomendada\n- Next.js + TypeScript\n- PostgreSQL / Supabase\n- PWA responsivo para tablet\n- Design system definido pelo cliente\n\n## Próximas etapas\n1. Validar fluxos e regras de negócio\n2. Criar protótipo das telas principais\n3. Implementar por módulos e validar com o cliente`;
     useEffect(() => {
         const draft = window.localStorage.getItem("sdd-studio-draft");
@@ -80,6 +98,8 @@ export default function Home() {
                 setPlatform(value.platform);
             if (value.packageType)
                 setPackageType(value.packageType);
+            if (value.projectStatus)
+                setProjectStatus(value.projectStatus);
             if (value.estimatedWeeks)
                 setEstimatedWeeks(value.estimatedWeeks);
             if (value.notes)
@@ -88,8 +108,11 @@ export default function Home() {
         catch { /* a new draft is safer than broken data */ }
     }, []);
     useEffect(() => {
-        window.localStorage.setItem("sdd-studio-draft", JSON.stringify({ selected, details, clientName, contactName, email, phone, projectName, platform, packageType, estimatedWeeks, notes }));
-    }, [selected, details, clientName, contactName, email, phone, projectName, platform, packageType, estimatedWeeks, notes]);
+        window.localStorage.setItem("sdd-studio-draft", JSON.stringify({ selected, details, clientName, contactName, email, phone, projectName, platform, packageType, projectStatus, estimatedWeeks, notes }));
+    }, [selected, details, clientName, contactName, email, phone, projectName, platform, packageType, projectStatus, estimatedWeeks, notes]);
+    useEffect(() => {
+        setSelected((current) => current.length > activePackage.maxModules ? current.slice(0, activePackage.maxModules) : current);
+    }, [activePackage.maxModules]);
     async function loadProjects() {
         try {
             const response = await fetch("/api/projects", { cache: "no-store" });
@@ -102,6 +125,62 @@ export default function Home() {
             setNotice(error instanceof Error ? error.message : "Não foi possível carregar os projetos.");
         }
     }
+    async function loadDocuments(projectId: string) {
+        const response = await fetch(`/api/projects/${projectId}/documents`, { cache: "no-store" });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Não foi possível carregar o histórico de SDDs.");
+        setDocuments(data.documents);
+    }
+    async function openProject(projectId: string) {
+        try {
+            setNotice("");
+            const response = await fetch(`/api/projects/${projectId}`, { cache: "no-store" });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || "Não foi possível abrir o projeto.");
+            const project = data.project;
+            setClientName(project.clientName || "");
+            setContactName(project.contactName || "");
+            setEmail(project.email || "");
+            setPhone(project.phone || "");
+            setProjectName(project.name || "");
+            setPackageType(project.packageType || "professional");
+            setProjectStatus(project.status || "draft");
+            setPlatform(project.platform || "web_tablet");
+            setEstimatedWeeks(String(project.estimatedWeeks || 6));
+            setNotes(project.meetingNotes || "");
+            setSelected(project.modules.map((module: { key: string }) => module.key));
+            setDetails(Object.fromEntries(project.modules.map((module: { key: string; options: string[] }) => [module.key, module.options])));
+            setSavedProjectId(projectId);
+            await loadDocuments(projectId);
+            setScreen("meeting");
+        }
+        catch (error) {
+            setNotice(error instanceof Error ? error.message : "Não foi possível abrir o projeto.");
+        }
+    }
+    async function deleteProject() {
+        if (!savedProjectId)
+            return;
+        if (!window.confirm("Excluir este projeto e todos os SDDs vinculados? Esta ação não pode ser desfeita."))
+            return;
+        setSaving(true);
+        try {
+            const response = await fetch(`/api/projects/${savedProjectId}`, { method: "DELETE" });
+            const data = await response.json();
+            if (!response.ok)
+                throw new Error(data.error || "Não foi possível excluir o projeto.");
+            setSavedProjectId(null);
+            setNotice("Projeto excluído com sucesso.");
+            setScreen("projects");
+            await loadProjects();
+        }
+        catch (error) {
+            setNotice(error instanceof Error ? error.message : "Não foi possível excluir o projeto.");
+        }
+        finally {
+            setSaving(false);
+        }
+    }
     async function saveProject(includeSdd = false) {
         if (!clientName.trim() || !projectName.trim()) {
             setNotice("Informe o nome do cliente e o nome do projeto para salvar.");
@@ -110,9 +189,10 @@ export default function Home() {
         setSaving(true);
         setNotice("");
         try {
-            const response = await fetch("/api/projects", {
-                method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ clientName, contactName, email, phone, projectName, packageType, platform, estimatedValue: total, estimatedWeeks: Number(estimatedWeeks) || 0, meetingNotes: notes, modules: selectedModules.map((item) => ({ key: item.id, name: item.title, price: item.price, options: details[item.id] || [] })) }),
+            const endpoint = savedProjectId ? `/api/projects/${savedProjectId}` : "/api/projects";
+            const response = await fetch(endpoint, {
+                method: savedProjectId ? "PUT" : "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ clientName, contactName, email, phone, projectName, status: projectStatus, packageType, platform, estimatedValue: total, estimatedWeeks: Number(estimatedWeeks) || 0, meetingNotes: notes, modules: selectedModules.map((item) => ({ key: item.id, name: item.title, price: item.price, options: details[item.id] || [] })) }),
             });
             const data = await response.json();
             if (!response.ok)
@@ -124,8 +204,9 @@ export default function Home() {
                     const documentData = await documentResponse.json();
                     throw new Error(documentData.error || "Projeto salvo, mas o SDD não foi arquivado.");
                 }
+                await loadDocuments(data.projectId);
             }
-            setNotice(includeSdd ? "Projeto e SDD salvos com sucesso." : "Rascunho salvo com sucesso.");
+            setNotice(includeSdd ? "Projeto e SDD salvos com sucesso." : savedProjectId ? "Projeto atualizado com sucesso." : "Rascunho salvo com sucesso.");
             return data.projectId as string;
         }
         catch (error) {
@@ -136,7 +217,16 @@ export default function Home() {
             setSaving(false);
         }
     }
-    function toggleModule(id: string) { setSelected((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]); }
+    function toggleModule(id: string) {
+        setSelected((current) => {
+            if (current.includes(id)) return current.filter((item) => item !== id);
+            if (Number.isFinite(activePackage.maxModules) && current.length >= activePackage.maxModules) {
+                setNotice(`${activePackage.label} permite até ${activePackage.maxModules} módulos. Para ampliar, selecione um pacote superior.`);
+                return current;
+            }
+            return [...current, id];
+        });
+    }
     function toggleDetail(moduleId: string, detail: string) { setDetails((current) => { const values = current[moduleId] || []; return { ...current, [moduleId]: values.includes(detail) ? values.filter((item) => item !== detail) : [...values, detail] }; }); }
     function downloadSdd() { const blob = new Blob([sddText], { type: "text/markdown;charset=utf-8" }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `SDD-${clientName.replace(/[^a-z0-9]/gi, "-") || "projeto"}.md`; link.click(); URL.revokeObjectURL(link.href); }
     async function generateSdd() { await saveProject(true); setShowSdd(true); }
@@ -163,7 +253,7 @@ export default function Home() {
 </div>
 <button className="new-project" onClick={() => setScreen("meeting")}>Usar em uma reunião</button>
 </section>
-<section className="package-grid">{[["Essencial", "Para sites e apps simples", "R$ 1.200", "Até 3 telas ou fluxos", "1 objetivo principal", "Visual profissional baseado no design system", "Sem integrações ou automações"], ["Profissional", "Para operações conectadas", "R$ 3.000", "Até 8 telas ou fluxos", "Até 4 módulos de gestão", "Dashboard e relatórios essenciais", "Web + tablet (PWA) e 1 integração"], ["Premium", "Para sistemas completos", "R$ 5.000", "Até 15 telas ou fluxos", "Até 8 módulos de gestão", "Automações e até 3 integrações", "Experiência visual refinada e entrega por etapas"]].map((item, index) => <article key={item[0]} className={`package-card ${index === 1 ? "featured" : ""}`}>
+<section className="package-grid">{[["Essencial", "Para sites e apps simples", "R$ 1.200", "Até 3 telas ou fluxos", "2 módulos incluídos", "Visual profissional baseado no design system", "Módulos extras cobrados à parte"], ["Profissional", "Para operações conectadas", "R$ 3.000", "Até 8 telas ou fluxos", "4 módulos incluídos", "Dashboard e relatórios essenciais", "Módulos extras cobrados à parte"], ["Premium", "Para sistemas completos", "R$ 5.000", "Até 15 telas ou fluxos", "8 módulos incluídos", "Experiência visual refinada", "Módulos extras cobrados à parte"]].map((item, index) => <article key={item[0]} className={`package-card ${index === 1 ? "featured" : ""}`}>
 <span className="package-number">0{index + 1}</span>
 <p className="eyebrow">PACOTE {item[0].toUpperCase()}</p>
 <h2>{item[0]}</h2>
@@ -175,7 +265,7 @@ export default function Home() {
 </article>)}</section>
 <section className="package-comparison">
 <div className="comparison-head"><div><p className="eyebrow">COMPARATIVO OBJETIVO</p><h2>O que muda em cada pacote?</h2></div><p>Use esta tabela durante a reunião para alinhar expectativa, investimento e limite de escopo.</p></div>
-<div className="comparison-table" role="table" aria-label="Comparativo de pacotes"><div className="comparison-row comparison-labels" role="row"><span role="columnheader">ENTREGA</span><strong role="columnheader">ESSENCIAL</strong><strong role="columnheader">PROFISSIONAL</strong><strong role="columnheader">PREMIUM</strong></div><div className="comparison-row" role="row"><span>Investimento</span><strong>R$ 1.200</strong><strong>R$ 3.000</strong><strong>R$ 5.000</strong></div><div className="comparison-row" role="row"><span>Telas e fluxos</span><strong>Até 3</strong><strong>Até 8</strong><strong>Até 15</strong></div><div className="comparison-row" role="row"><span>Módulos</span><strong>1 objetivo</strong><strong>Até 4 módulos</strong><strong>Até 8 módulos</strong></div><div className="comparison-row" role="row"><span>Plataforma</span><strong>Site ou web simples</strong><strong>Web + Tablet (PWA)</strong><strong>Web + Tablet refinado</strong></div><div className="comparison-row" role="row"><span>Integrações</span><strong>Não incluso</strong><strong>1 integração</strong><strong>Até 3 integrações</strong></div><div className="comparison-row" role="row"><span>Automação</span><strong>Não incluso</strong><strong>Essencial, se necessário</strong><strong>Fluxos automatizados</strong></div><div className="comparison-row" role="row"><span>Prazo de referência</span><strong>Até 2 semanas</strong><strong>4 a 6 semanas</strong><strong>6 a 10 semanas</strong></div></div>
+<div className="comparison-table" role="table" aria-label="Comparativo de pacotes"><div className="comparison-row comparison-labels" role="row"><span role="columnheader">ENTREGA</span><strong role="columnheader">ESSENCIAL</strong><strong role="columnheader">PROFISSIONAL</strong><strong role="columnheader">PREMIUM</strong></div><div className="comparison-row" role="row"><span>Investimento base</span><strong>R$ 1.200</strong><strong>R$ 3.000</strong><strong>R$ 5.000</strong></div><div className="comparison-row" role="row"><span>Para quem</span><strong>MVP de um processo</strong><strong>Operação em crescimento</strong><strong>Gestão completa e estratégica</strong></div><div className="comparison-row" role="row"><span>Telas e fluxos</span><strong>Até 3</strong><strong>Até 8</strong><strong>Até 15</strong></div><div className="comparison-row" role="row"><span>Módulos incluídos</span><strong>2 incluídos · máximo 3</strong><strong>4 incluídos · máximo 6</strong><strong>8 incluídos · sem limite total</strong></div><div className="comparison-row" role="row"><span>Complexidade</span><strong>Um fluxo principal</strong><strong>Fluxos conectados e perfis</strong><strong>Regras, áreas e jornadas integradas</strong></div><div className="comparison-row" role="row"><span>Validação</span><strong>1 ciclo de ajustes</strong><strong>2 ciclos de ajustes</strong><strong>Entrega por etapas e validações</strong></div><div className="comparison-row" role="row"><span>Padrão visual</span><strong>Design profissional responsivo</strong><strong>Design profissional responsivo</strong><strong>Design profissional responsivo</strong></div><div className="comparison-row" role="row"><span>Módulo adicional</span><strong>1 adicional possível</strong><strong>Até 2 adicionais possíveis</strong><strong>Sem limite, cobrado à parte</strong></div><div className="comparison-row" role="row"><span>Prazo de referência</span><strong>Até 2 semanas</strong><strong>4 a 6 semanas</strong><strong>6 a 10 semanas</strong></div></div>
 </section>
 <section className="catalog-modules">
 <div>
@@ -221,7 +311,7 @@ export default function Home() {
 <h2>Reuniões e propostas</h2>
 </div>
 <button onClick={loadProjects}>Atualizar lista</button>
-</div>{projects.length ? projects.map((project) => <button className="project-row" key={project.id} onClick={() => { setClientName(project.clientName); setProjectName(project.name); setScreen("meeting"); }}>
+</div>{projects.length ? projects.map((project) => <button className="project-row" key={project.id} onClick={() => openProject(project.id)}>
 <span className="project-avatar">{project.clientName[0]}</span>
 <span className="project-name">
 <strong>{project.clientName}</strong>
@@ -276,6 +366,8 @@ export default function Home() {
 </label>
 <label>Pacote comercial<select value={packageType} onChange={(event) => setPackageType(event.target.value)}><option value="essential">Essencial</option><option value="professional">Profissional</option><option value="premium">Premium</option></select>
 </label>
+<label>Status comercial<select value={projectStatus} onChange={(event) => setProjectStatus(event.target.value)}><option value="draft">Em descoberta</option><option value="proposal">Proposta enviada</option><option value="approved">Aprovado</option><option value="development">Em desenvolvimento</option><option value="completed">Concluído</option></select>
+</label>
 <label>Prazo estimado<select value={estimatedWeeks} onChange={(event) => setEstimatedWeeks(event.target.value)}><option value="2">2 semanas</option><option value="4">4 semanas</option><option value="6">6 semanas</option><option value="8">8 semanas</option><option value="12">12 semanas</option></select>
 </label>
 </div>
@@ -313,7 +405,7 @@ export default function Home() {
 <h2>{packageType === "essential" ? "Projeto essencial" : packageType === "premium" ? "Projeto premium" : "Projeto profissional"}</h2>
 <small className="package-offer">{packageOffer}</small>
 </div>
-<span className="live-dot">Ao vivo</span>
+<span className="live-dot">{statusLabel}</span>
 </div>
 <div className="platform">
 <span>Plataformas</span>
@@ -321,24 +413,26 @@ export default function Home() {
 </div>
 <div className="selection-list">
 <p>MÓDULOS SELECIONADOS <b>{selected.length}</b>
-</p>{selectedModules.map((item) => <div key={item.id}>
+</p>{selectedModules.map((item, index) => <div key={item.id}>
 <span>{item.icon}</span>
 <strong>{item.title}</strong>
-<em>{money.format(item.price)}</em>
+<em>{index < activePackage.includedModules ? "Incluído" : `+${money.format(item.price)}`}</em>
 </div>)}</div>
+{additionalModules.length > 0 && <div className="additionals-note"><span>ADICIONAIS</span><strong>{additionalModules.length} módulo(s)</strong><b>+{money.format(additionalModules.reduce((sum, item) => sum + item.price, 0))}</b></div>}
 <div className="estimate">
 <div>
-<span>Piso do pacote</span>
-<strong>{money.format(packageFloor)}</strong>
+<span>Pacote {activePackage.label}</span>
+<strong>{money.format(basePrice)}</strong>
 </div>
 <div>
 <span>Investimento estimado</span>
 <b>{money.format(total)}</b>
 </div>
-<small>Prazo estimado: {estimatedWeeks} semanas · teto comercial: {money.format(5000)}</small>
+<small>{includedModules.length} de {activePackage.includedModules} incluídos · {selected.length} selecionado(s) · {Number.isFinite(activePackage.maxModules) ? `limite de ${activePackage.maxModules}` : "sem limite de módulos"}</small>
 </div>
+{savedProjectId && <div className="document-history"><p className="eyebrow">HISTÓRICO DE SDD <b>{documents.length}</b></p>{documents.length ? documents.map((document) => <button key={document.id} onClick={() => navigator.clipboard?.writeText(document.content).then(() => setNotice(`SDD versão ${document.version} copiado para a área de transferência.`))}><span>SDD · V{String(document.version).padStart(2, "0")}</span><small>{new Date(document.createdAt).toLocaleDateString("pt-BR")}</small></button>) : <small>Nenhum SDD gerado ainda.</small>}</div>}
 <button className="primary-button" onClick={generateSdd} disabled={saving}>{saving ? "Salvando..." : "Gerar SDD completo"} <span>→</span>
-</button>{notice && <p className="notice">{notice}</p>}</aside>
+</button>{savedProjectId && <button className="delete-project" onClick={deleteProject} disabled={saving}>Excluir este projeto</button>}{notice && <p className="notice">{notice}</p>}</aside>
 </div>{showSdd && <div className="sdd-modal" role="dialog" aria-modal="true" aria-label="SDD gerado">
 <div className="sdd-sheet">
 <header>

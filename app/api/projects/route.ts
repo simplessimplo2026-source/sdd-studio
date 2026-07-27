@@ -8,6 +8,7 @@ type CreateProjectPayload = {
   email?: string;
   phone?: string;
   projectName?: string;
+  status?: string;
   packageType?: string;
   platform?: string;
   estimatedValue?: number;
@@ -66,6 +67,7 @@ export async function POST(request: Request) {
       id: projectId,
       clientId,
       name: projectName,
+      status: body.status ?? "draft",
       packageType: body.packageType ?? "professional",
       platform: body.platform ?? "web_tablet",
       estimatedValue: body.estimatedValue ?? 0,

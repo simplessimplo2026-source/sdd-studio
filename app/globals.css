@@ -216,6 +216,7 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:'Plus Jakarta
 .selection-list>div{display:flex;align-items:center;gap:9px;margin:11px 0;font-size:12px}
 .selection-list>div span{color:var(--rose);width:15px}
 .selection-list>div em{font:500 10px 'Geist Mono';font-style:normal;margin-left:auto;color:#777}
+.additionals-note{display:grid;grid-template-columns:1fr auto;gap:4px;padding:13px;border-radius:12px;background:#fff2f5;border:1px solid #f5d4dd}.additionals-note span{font:600 9px 'Geist Mono';letter-spacing:.1em;color:#a21742}.additionals-note strong{font-size:11px}.additionals-note b{grid-column:2;grid-row:1 / span 2;align-self:center;color:var(--rose);font:600 13px 'Geist Mono'}
 .estimate{padding:19px 0;display:flex;flex-direction:column;gap:12px}
 .estimate div{display:flex;justify-content:space-between;font-size:12px;color:#777}
 .estimate div:last-of-type{padding-top:11px;border-top:1px dashed #ddd4c8;color:#171717;align-items:end}
@@ -224,6 +225,8 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:'Plus Jakarta
 .primary-button{width:100%;border:0;background:#111;color:#fff;padding:15px 17px;border-radius:14px;font:700 11px 'Plus Jakarta Sans';text-transform:uppercase;letter-spacing:.09em;cursor:pointer;transition:.2s}
 .primary-button:hover{background:var(--rose)}
 .primary-button span{float:right;font-size:18px;line-height:10px}
+.delete-project{width:100%;margin-top:10px;border:1px solid #f0cbd4;background:#fff;color:#b31943;padding:11px 14px;border-radius:12px;font:700 10px 'Plus Jakarta Sans';letter-spacing:.07em;text-transform:uppercase;cursor:pointer}.delete-project:hover{background:#fff1f4}.delete-project:disabled{opacity:.6;cursor:not-allowed}
+.document-history{padding:16px 0;border-top:1px solid var(--line)}.document-history .eyebrow{margin-bottom:9px}.document-history .eyebrow b{float:right;background:#f1efeb;color:#222;border-radius:20px;padding:2px 6px;font-size:9px}.document-history>button{width:100%;display:flex;align-items:center;justify-content:space-between;border:1px solid #e9e5de;background:#fff;border-radius:10px;padding:9px 10px;margin-top:6px;cursor:pointer;font:600 10px 'Plus Jakarta Sans';text-align:left}.document-history>button:hover{border-color:var(--rose);background:#fff7f8}.document-history button small,.document-history>small{font:500 9px 'Geist Mono';color:#777}
 .sdd-preview{margin-top:14px;padding:14px;border-radius:13px;background:#fff3f5;border:1px solid #f8d5dd;display:flex;flex-direction:column;gap:4px}
 .sdd-preview strong{font-size:12px}
 .sdd-preview span{font-size:10px;line-height:1.45;color:#7d535b}
