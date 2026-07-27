@@ -245,6 +245,27 @@ export default function Home() {
             setSaving(false);
         }
     }
+    function startNewMeeting(keepPackage = false) {
+        const selectedPackage = packageType;
+        window.localStorage.removeItem("sdd-studio-draft");
+        setSelected([]);
+        setDetails({});
+        setClientName("");
+        setContactName("");
+        setEmail("");
+        setPhone("");
+        setProjectName("");
+        setPlatform("web_tablet");
+        setPackageType(keepPackage ? selectedPackage : "professional");
+        setProjectStatus("draft");
+        setEstimatedWeeks("4");
+        setNotes("");
+        setDiscovery(emptyDiscovery);
+        setSavedProjectId(null);
+        setDocuments([]);
+        setNotice("");
+        setScreen("meeting");
+    }
     async function saveProject(includeSdd = false) {
         if (!clientName.trim() || !projectName.trim()) {
             setNotice("Informe o nome do cliente e o nome do projeto para salvar.");
@@ -304,7 +325,7 @@ export default function Home() {
 </a>
 <nav>
 <button className={screen === "projects" ? "active" : ""} onClick={() => { setScreen("projects"); loadProjects(); }}>Projetos</button>
-<button className={screen === "meeting" ? "active" : ""} onClick={() => setScreen("meeting")}>Nova reunião</button>
+<button className={screen === "meeting" ? "active" : ""} onClick={() => startNewMeeting()}>Nova reunião</button>
 <button className={screen === "catalog" ? "active" : ""} onClick={() => setScreen("catalog")}>Catálogo</button>
 </nav>
 <div className="header-actions">{screen === "meeting" && <button className="ghost-button" onClick={() => saveProject(false)}>{saving ? "Salvando..." : "Salvar rascunho"}</button>}<button className="avatar" aria-label="Perfil">EM</button>
@@ -318,7 +339,7 @@ export default function Home() {
 </h1>
 <p className="muted">Defina uma base comercial e personalize o escopo para cada cliente.</p>
 </div>
-<button className="new-project" onClick={() => setScreen("meeting")}>Usar em uma reunião</button>
+<button className="new-project" onClick={() => startNewMeeting(true)}>Usar em uma reunião</button>
 </section>
 <section className="package-grid">{packages.map((item, index) => <article key={item.id} className={`package-card ${item.id === packageType ? "is-selected" : ""}`} data-selected={item.id === packageType}>
 <span className="package-number">0{index + 1}</span>
@@ -355,7 +376,7 @@ export default function Home() {
 </h1>
 <p className="muted">Retome reuniões, acompanhe propostas e encontre os SDDs já gerados.</p>
 </div>
-<button className="new-project" onClick={() => setScreen("meeting")}>+ Nova reunião</button>
+<button className="new-project" onClick={() => startNewMeeting()}>+ Nova reunião</button>
 </section>
 <section className="project-stats">
 <div>
@@ -543,7 +564,7 @@ export default function Home() {
 </div>
 {savedProjectId && <div className="document-history"><p className="eyebrow">HISTÓRICO DE SDD <b>{documents.length}</b></p>{documents.length ? documents.map((document) => <button key={document.id} onClick={() => navigator.clipboard?.writeText(document.content).then(() => setNotice(`SDD versão ${document.version} copiado para a área de transferência.`))}><span>SDD · V{String(document.version).padStart(2, "0")}</span><small>{new Date(document.createdAt).toLocaleDateString("pt-BR")}</small></button>) : <small>Nenhum SDD gerado ainda.</small>}</div>}
 <button className="primary-button" onClick={generateSdd} disabled={saving}>{saving ? "Salvando..." : pendingReadiness ? `Gerar SDD · ${pendingReadiness} revisão(ões)` : "Gerar SDD completo"} <span>→</span>
-</button><button className="proposal-button" onClick={() => setShowProposal(true)}>Gerar proposta comercial</button>{savedProjectId && projectStatus === "preparation" && <div className="development-handoff"><p className="eyebrow">PACOTE PARA DESENVOLVIMENTO</p><span>Exporte o briefing estruturado para importar no futuro ambiente de design e desenvolvimento.</span><button onClick={downloadDevelopmentPackage}>Baixar pacote .JSON</button><button onClick={() => navigator.clipboard?.writeText(JSON.stringify(developmentPackage, null, 2)).then(() => setNotice("Pacote de desenvolvimento copiado."))}>Copiar pacote</button></div>}{savedProjectId && <button className="delete-project" onClick={deleteProject} disabled={saving}>Excluir este projeto</button>}{notice && <p className="notice">{notice}</p>}</aside>
+</button><button className="proposal-button" onClick={() => setShowProposal(true)}>Gerar proposta comercial</button>{savedProjectId && projectStatus === "preparation" && <div className="development-handoff"><p className="eyebrow">PACOTE PARA DESENVOLVIMENTO</p><span>Exporte o briefing estruturado para importar no futuro ambiente de design e desenvolvimento.</span><button onClick={downloadDevelopmentPackage}>Baixar pacote .JSON</button><button onClick={() => navigator.clipboard?.writeText(JSON.stringify(developmentPackage, null, 2)).then(() => setNotice("Pacote de desenvolvimento copiado."))}>Copiar pacote</button></div>}{savedProjectId && projectStatus === "completed" && <button className="new-meeting-button" onClick={() => startNewMeeting()}>Concluir e iniciar nova reunião</button>}{savedProjectId && <button className="delete-project" onClick={deleteProject} disabled={saving}>Excluir este projeto</button>}{notice && <p className="notice">{notice}</p>}</aside>
 </div>{showSdd && <div className="sdd-modal" role="dialog" aria-modal="true" aria-label="SDD gerado">
 <div className="sdd-sheet">
 <header>
