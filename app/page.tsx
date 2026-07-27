@@ -264,7 +264,7 @@ export default function Home() {
 <strong>{item[2]}</strong>
 <small>a partir de</small>
 <ul>{item.slice(3).map((feature) => <li key={feature}>{feature}</li>)}</ul>
-<button onClick={() => { setPackageType(index === 0 ? "essential" : index === 1 ? "professional" : "premium"); setScreen("meeting"); }}>Selecionar pacote →</button>
+<button onClick={() => setPackageType(index === 0 ? "essential" : index === 1 ? "professional" : "premium")}>{(index === 0 ? "essential" : index === 1 ? "professional" : "premium") === packageType ? "Pacote selecionado ✓" : "Selecionar pacote →"}</button>
 </article>)}</section>
 <section className="package-comparison">
 <div className="comparison-head"><div><p className="eyebrow">COMPARATIVO OBJETIVO</p><h2>O que muda em cada pacote?</h2></div><p>Use esta tabela durante a reunião para alinhar expectativa, investimento e limite de escopo.</p></div>
