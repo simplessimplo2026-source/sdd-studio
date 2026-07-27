@@ -96,7 +96,15 @@ export default function Home() {
         const query = projectSearch.trim().toLocaleLowerCase("pt-BR");
         return projects.filter((project) => (projectFilter === "all" || project.status === projectFilter) && (!query || `${project.clientName} ${project.name}`.toLocaleLowerCase("pt-BR").includes(query)));
     }, [projects, projectSearch, projectFilter]);
-    const sddText = `# SDD — ${clientName}\n\n## Visão do projeto\n${projectName}. Sistema de gestão com experiência otimizada para ${platformLabel.toLowerCase()}.\n\n## Dados do cliente\n- Empresa: ${clientName}\n- Contato: ${contactName || "A definir"}\n- E-mail: ${email || "A definir"}\n- Telefone: ${phone || "A definir"}\n\n## Diagnóstico da descoberta\n- Objetivo principal: ${discovery.objective || "A definir"}\n- Usuários e perfis: ${discovery.users || "A definir"}\n- Dor atual: ${discovery.pain || "A definir"}\n- Integrações necessárias: ${discovery.integrations || "Nenhuma definida"}\n- Critério de sucesso: ${discovery.successMetric || "A definir"}\n\n## Contexto da reunião\n${notes}\n\n## Escopo\n- Pacote: ${packageType === "essential" ? "Essencial" : packageType === "premium" ? "Premium" : "Profissional"}\n- Plataforma: ${platformLabel}\n- Prazo estimado: ${estimatedWeeks} semanas\n\n## Módulos aprovados\n${selectedModules.map((item) => `- ${item.title}: ${item.description}${details[item.id]?.length ? ` (${details[item.id].join(", ")})` : ""}`).join("\n")}\n\n## Investimento estimado\n${money.format(total)}\n\n## Stack recomendada\n- Next.js + TypeScript\n- PostgreSQL / Supabase\n- PWA responsivo para tablet\n- Design system definido pelo cliente\n\n## Próximas etapas\n1. Validar fluxos e regras de negócio\n2. Criar protótipo das telas principais\n3. Implementar por módulos e validar com o cliente`;
+    const readinessItems = [
+        { label: "Cliente e projeto", complete: Boolean(clientName.trim() && projectName.trim()) },
+        { label: "Contato do cliente", complete: Boolean(contactName.trim() || email.trim() || phone.trim()) },
+        { label: "Objetivo definido", complete: Boolean(discovery.objective.trim()) },
+        { label: "Módulos selecionados", complete: selectedModules.length > 0 },
+        { label: "Anotações da reunião", complete: Boolean(notes.trim()) },
+    ];
+    const pendingReadiness = readinessItems.filter((item) => !item.complete).length;
+    const sddText = `# SDD — ${clientName}\n\n## 1. Visão do projeto\n${projectName}. Sistema de gestão com experiência otimizada para ${platformLabel.toLowerCase()}.\n\n## 2. Dados do cliente\n- Empresa: ${clientName}\n- Contato: ${contactName || "A definir"}\n- E-mail: ${email || "A definir"}\n- Telefone: ${phone || "A definir"}\n\n## 3. Diagnóstico da descoberta\n- Objetivo principal: ${discovery.objective || "A definir"}\n- Usuários e perfis: ${discovery.users || "A definir"}\n- Dor atual: ${discovery.pain || "A definir"}\n- Integrações necessárias: ${discovery.integrations || "Nenhuma definida"}\n- Critério de sucesso: ${discovery.successMetric || "A definir"}\n\n## 4. Contexto e regras de negócio\n${notes || "As regras de negócio serão validadas na etapa de descoberta."}\n\n## 5. Escopo contratado\n- Pacote: ${activePackage.label}\n- Plataforma: ${platformLabel}\n- Prazo de referência: ${estimatedWeeks} semanas\n- Módulos incluídos: ${includedModules.map((item) => item.title).join(", ") || "A definir"}\n- Módulos adicionais: ${additionalModules.map((item) => item.title).join(", ") || "Nenhum"}\n\n## 6. Requisitos funcionais\n${selectedModules.map((item, index) => `### RF-${String(index + 1).padStart(2, "0")} — ${item.title}\n- Objetivo: ${item.description}\n- Capacidades: ${details[item.id]?.length ? details[item.id].join("; ") : "Definir durante o protótipo e validação."}`).join("\n\n")}\n\n## 7. Requisitos não funcionais\n- Interface responsiva e adequada ao uso em tablet.\n- Acesso controlado por perfis e permissões quando aplicável.\n- Dados organizados para consulta, relatórios e expansão futura.\n- Aplicar o design system aprovado pelo cliente em toda a experiência.\n\n## 8. Critérios de aceite\n- Os fluxos selecionados devem funcionar de ponta a ponta com os perfis definidos.\n- Cada módulo deve apresentar os campos e ações validados durante o protótipo.\n- A experiência deve ser validada em tela de tablet e navegador moderno.\n- O cliente aprova a entrega por etapa antes do início da próxima.\n\n## 9. Investimento e premissas\n- Pacote ${activePackage.label}: ${money.format(basePrice)}\n${additionalModules.length ? `- Adicionais: ${money.format(additionalModules.reduce((sum, item) => sum + item.price, 0))}\n` : ""}- Investimento estimado: ${money.format(total)}\n- Demandas fora do escopo aprovado serão avaliadas como adicionais.\n\n## 10. Stack recomendada\n- Next.js + TypeScript\n- PostgreSQL / Supabase\n- PWA responsivo para tablet\n- Design system definido pelo cliente\n\n## 11. Plano de execução\n1. Validar fluxos, regras de negócio e critérios de aceite.\n2. Criar protótipo das telas e obter aprovação.\n3. Implementar por módulos, com validação a cada etapa.\n4. Realizar homologação, ajustes finais e entrega.`;
     const proposalText = `# Proposta comercial — ${projectName}\n\nOlá, ${contactName || clientName}!\n\nPreparamos uma proposta para ${clientName} com foco em ${projectName}.\n\n## Solução\n${platformLabel} com experiência visual profissional, desenvolvimento responsivo e foco nos fluxos que mais importam para a operação.\n\n## Escopo incluído\n${selectedModules.map((item, index) => `- ${item.title}${index < activePackage.includedModules ? " (incluído no pacote)" : ` (adicional: ${money.format(item.price)})`}`).join("\n")}\n\n## Investimento\n- Pacote ${activePackage.label}: ${money.format(basePrice)}\n${additionalModules.length ? `- Adicionais: ${money.format(additionalModules.reduce((sum, item) => sum + item.price, 0))}\n` : ""}- Investimento total: ${money.format(total)}\n\n## Prazo\nEstimativa de ${estimatedWeeks} semanas, após validação e início do projeto.\n\n## Próximos passos\n1. Aprovação do escopo e investimento.\n2. Definição do cronograma de início.\n3. Início da etapa de design e desenvolvimento.\n\nEsta proposta é válida por 7 dias.`;
     useEffect(() => {
         const draft = window.localStorage.getItem("sdd-studio-draft");
@@ -483,8 +491,12 @@ export default function Home() {
 </div>
 <small>{includedModules.length} de {activePackage.includedModules} incluídos · {selected.length} selecionado(s) · {Number.isFinite(activePackage.maxModules) ? `limite de ${activePackage.maxModules}` : "sem limite de módulos"}</small>
 </div>
+<div className={`readiness-card ${pendingReadiness ? "has-pending" : "complete"}`}>
+<div><p className="eyebrow">PRONTIDÃO DO SDD</p><strong>{pendingReadiness ? `${pendingReadiness} ponto(s) para revisar` : "Pronto para gerar"}</strong></div>
+<div className="readiness-list">{readinessItems.map((item) => <span key={item.label} className={item.complete ? "done" : "pending"}><b>{item.complete ? "✓" : "•"}</b>{item.label}</span>)}</div>
+</div>
 {savedProjectId && <div className="document-history"><p className="eyebrow">HISTÓRICO DE SDD <b>{documents.length}</b></p>{documents.length ? documents.map((document) => <button key={document.id} onClick={() => navigator.clipboard?.writeText(document.content).then(() => setNotice(`SDD versão ${document.version} copiado para a área de transferência.`))}><span>SDD · V{String(document.version).padStart(2, "0")}</span><small>{new Date(document.createdAt).toLocaleDateString("pt-BR")}</small></button>) : <small>Nenhum SDD gerado ainda.</small>}</div>}
-<button className="primary-button" onClick={generateSdd} disabled={saving}>{saving ? "Salvando..." : "Gerar SDD completo"} <span>→</span>
+<button className="primary-button" onClick={generateSdd} disabled={saving}>{saving ? "Salvando..." : pendingReadiness ? `Gerar SDD · ${pendingReadiness} revisão(ões)` : "Gerar SDD completo"} <span>→</span>
 </button><button className="proposal-button" onClick={() => setShowProposal(true)}>Gerar proposta comercial</button>{savedProjectId && <button className="delete-project" onClick={deleteProject} disabled={saving}>Excluir este projeto</button>}{notice && <p className="notice">{notice}</p>}</aside>
 </div>{showSdd && <div className="sdd-modal" role="dialog" aria-modal="true" aria-label="SDD gerado">
 <div className="sdd-sheet">
@@ -506,26 +518,33 @@ export default function Home() {
 <h3>{projectName}</h3>
 <p>{notes || "Especificação criada a partir da descoberta com o cliente."}</p>
 </section>
+<section className="sdd-diagnosis">
+<p className="eyebrow">02 — DIAGNÓSTICO</p>
+<div><span>Objetivo</span><strong>{discovery.objective || "A definir"}</strong></div>
+<div><span>Usuários</span><strong>{discovery.users || "A definir"}</strong></div>
+<div><span>Dor atual</span><strong>{discovery.pain || "A definir"}</strong></div>
+<div><span>Sucesso</span><strong>{discovery.successMetric || "A definir"}</strong></div>
+</section>
 <section className="sdd-modules">
-<p className="eyebrow">02 — MÓDULOS APROVADOS</p>{selectedModules.map((item, index) => <div key={item.id}>
+<p className="eyebrow">03 — MÓDULOS APROVADOS</p>{selectedModules.map((item, index) => <div key={item.id}>
 <b>0{index + 1}</b>
 <span>
 <strong>{item.title}</strong>
-<small>{item.description}</small>
+<small>{item.description}{details[item.id]?.length ? ` · ${details[item.id].join(", ")}` : ""}</small>
 </span>
 <em>{money.format(item.price)}</em>
 </div>)}</section>
 <section className="two-column">
 <div>
-<p className="eyebrow">03 — TECNOLOGIAS</p>
+<p className="eyebrow">04 — CRITÉRIOS DE ACEITE</p>
 <ul>
-<li>Next.js + TypeScript</li>
-<li>PostgreSQL / Supabase</li>
-<li>PWA para tablet</li>
+<li>Fluxos validados com o cliente</li>
+<li>Uso responsivo no tablet</li>
+<li>Aprovação por etapa</li>
 </ul>
 </div>
 <div>
-<p className="eyebrow">04 — PRÓXIMA ETAPA</p>
+<p className="eyebrow">05 — PLANO DE EXECUÇÃO</p>
 <ul>
 <li>Validar regras de negócio</li>
 <li>Protótipo de telas</li>

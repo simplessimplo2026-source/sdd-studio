@@ -243,6 +243,15 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:'Plus Jakarta
 .estimate div:last-of-type{padding-top:11px;border-top:1px dashed #ddd4c8;color:#171717;align-items:end}
 .estimate b{font:600 24px 'Playfair Display';color:var(--rose)}
 .estimate small{font:10px 'Geist Mono';color:#888}
+.readiness-card{padding:14px;margin:0 0 16px;border:1px solid #dcece0;border-radius:14px;background:#f5fbf6}
+.readiness-card.has-pending{border-color:#f0dfbb;background:#fffaf0}
+.readiness-card>div:first-child{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.readiness-card .eyebrow{margin:0}
+.readiness-card strong{font-size:11px;color:#33704b}
+.readiness-card.has-pending strong{color:#89651d}
+.readiness-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.readiness-list span{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 7px;font:500 9px 'Geist Mono';background:#fff;color:#777}
+.readiness-list b{font-size:11px}.readiness-list .done{color:#357350}.readiness-list .pending{color:#a27b22}
 .primary-button{width:100%;border:0;background:#111;color:#fff;padding:15px 17px;border-radius:14px;font:700 11px 'Plus Jakarta Sans';text-transform:uppercase;letter-spacing:.09em;cursor:pointer;transition:.2s}
 .primary-button:hover{background:var(--rose)}
 .primary-button span{float:right;font-size:18px;line-height:10px}
@@ -252,6 +261,11 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:'Plus Jakarta
 .sdd-preview{margin-top:14px;padding:14px;border-radius:13px;background:#fff3f5;border:1px solid #f8d5dd;display:flex;flex-direction:column;gap:4px}
 .sdd-preview strong{font-size:12px}
 .sdd-preview span{font-size:10px;line-height:1.45;color:#7d535b}
+.sdd-diagnosis{display:grid;grid-template-columns:1fr 1fr;gap:10px!important}
+.sdd-diagnosis .eyebrow{grid-column:1/-1}
+.sdd-diagnosis div{min-height:68px;padding:11px;border:1px solid #ece7df;border-radius:12px;background:#faf9f6;display:flex;flex-direction:column;gap:5px}
+.sdd-diagnosis span{font:500 9px 'Geist Mono';letter-spacing:.08em;text-transform:uppercase;color:#888}
+.sdd-diagnosis strong{font:600 12px/1.35 'Plus Jakarta Sans'}
 @media(max-width:900px){.app-shell{padding:16px}
 .topbar{height:auto;min-height:64px;gap:8px;padding:8px 10px}
 .topbar nav{display:flex;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
@@ -264,6 +278,7 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:'Plus Jakarta
 .summary-card{position:static}
 .client-card{min-width:0;width:100%}
 .detail-group{align-items:start;flex-direction:column;gap:12px}
+.sdd-diagnosis{grid-template-columns:1fr}
 }
 @media(max-width:560px){.header-actions .ghost-button{display:none}
 .module-grid{grid-template-columns:1fr}
