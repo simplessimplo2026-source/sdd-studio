@@ -48,9 +48,11 @@
 .discovery-grid input:focus,.discovery-grid select:focus{border-color:var(--rose);box-shadow:0 0 0 3px #e11d4815}
 .discovery-grid .discovery-wide{grid-column:1/-1}
 .package-fit-warning{margin:-22px 0 26px;padding:11px 13px;border:1px solid #f0d2ac;border-radius:12px;background:#fff8e9;color:#805816;font-size:11px;line-height:1.45}
+.package-recommendation{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:-22px 0 26px;padding:13px;border:1px solid #d8d0f2;border-radius:13px;background:#f8f6ff}.package-recommendation .eyebrow{margin:0 0 4px;color:#695092}.package-recommendation strong{display:block;font-size:13px;color:#403062}.package-recommendation span{display:block;margin-top:4px;font-size:10px;line-height:1.4;color:#716985}.package-recommendation button{flex:0 0 auto;border:0;border-radius:10px;background:#5c3f91;color:#fff;padding:10px 12px;font:700 9px 'Plus Jakarta Sans';letter-spacing:.07em;text-transform:uppercase;cursor:pointer}.package-recommendation.matched{border-color:#cde4d3;background:#f5fbf6}.package-recommendation.matched .eyebrow,.package-recommendation.matched strong{color:#38704b}
 .notice{margin:16px 0 0;padding:11px 13px;border-radius:12px;background:#fce9ee;color:#a20f34;font-size:11px;line-height:1.45}
 .empty-state{padding:28px 4px;color:#777;font-size:13px;line-height:1.6}
 @media(max-width:650px){.project-form,.discovery-grid{grid-template-columns:1fr}
+.package-recommendation{align-items:start;flex-direction:column}
 }
 
 .catalog-head{display:flex;justify-content:space-between;align-items:end;padding:70px 10px 34px}
@@ -112,6 +114,7 @@
 .status.s2{background:#f1f0ed;color:#68645d}
 .status-proposal{background:#fff3dd;color:#88621a}
 .status-approved{background:#eaf4ff;color:#25638f}
+.status-preparation{background:#fff0e9;color:#9b5130}
 .status-development{background:#f4edff;color:#7347a1}
 .status-completed{background:#f1f0ed;color:#68645d}
 .project-value{font:500 11px 'Geist Mono'}
@@ -154,6 +157,7 @@
 .sdd-actions{display:flex;gap:8px;flex-wrap:wrap}
 .sdd-actions button{border:1px solid #ddd8d0;background:white;border-radius:11px;padding:11px 14px;font:700 10px 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
 .sdd-actions .ai-prompt{border-color:#ebc8d2;background:#fff6f8;color:#a31743}
+.sdd-actions .print-document{border-color:#d8d3cb;background:#f6f5f2;color:#262321}
 .sdd-actions .download{background:#111;color:#fff;border-color:#111}
 @media(max-width:600px){.sdd-modal{padding:10px}
 .sdd-sheet{padding:26px;border-radius:20px}
@@ -259,6 +263,7 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:'Plus Jakarta
 .primary-button span{float:right;font-size:18px;line-height:10px}
 .delete-project{width:100%;margin-top:10px;border:1px solid #f0cbd4;background:#fff;color:#b31943;padding:11px 14px;border-radius:12px;font:700 10px 'Plus Jakarta Sans';letter-spacing:.07em;text-transform:uppercase;cursor:pointer}.delete-project:hover{background:#fff1f4}.delete-project:disabled{opacity:.6;cursor:not-allowed}
 .proposal-button{width:100%;margin-top:10px;border:1px solid #dcd7cf;background:#fff;color:#191919;padding:12px 14px;border-radius:12px;font:700 10px 'Plus Jakarta Sans';letter-spacing:.07em;text-transform:uppercase;cursor:pointer}.proposal-button:hover{border-color:#191919;background:#f8f7f4}.proposal-sheet{width:min(760px,100%);background:#fffdf9;border-radius:28px;padding:45px;box-shadow:0 30px 100px #0004;margin:auto;animation:sdd-sheet-enter .3s cubic-bezier(.2,.75,.3,1)}.proposal-sheet header{display:flex;justify-content:space-between;align-items:start}.proposal-sheet h2{font:600 43px/.95 'Playfair Display';letter-spacing:-.04em;margin:0}.proposal-sheet h2 span{color:var(--rose)}.proposal-intro{padding:24px 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:6px}.proposal-intro p,.proposal-value span{margin:0;font:600 9px 'Geist Mono';letter-spacing:.12em;color:#777}.proposal-intro strong{font:600 27px 'Playfair Display'}.proposal-intro span{font-size:12px;color:#777}.proposal-sheet section{padding:26px 0;border-bottom:1px solid var(--line)}.proposal-sheet h3{font:600 29px/1.08 'Playfair Display';margin:0 0 10px}.proposal-sheet section>p:last-child{font-size:13px;line-height:1.65;color:#666;margin:0}.proposal-value{display:flex;flex-direction:column;gap:5px}.proposal-value strong{font:600 34px 'Playfair Display';color:var(--rose)}.proposal-value small{font-size:11px;color:#777}.proposal-sheet footer{display:flex;align-items:end;justify-content:space-between;padding-top:28px}.proposal-sheet footer span{display:block;font:600 9px 'Geist Mono';letter-spacing:.1em;color:#777}.proposal-sheet footer strong{display:block;max-width:250px;font:600 18px/1.15 'Playfair Display';margin-top:5px}@media(max-width:600px){.proposal-sheet{padding:26px;border-radius:20px}.proposal-sheet h2{font-size:35px}.proposal-sheet footer{align-items:start;gap:18px;flex-direction:column}}
+.development-handoff{margin-top:10px;padding:14px;border:1px solid #d9d3f2;border-radius:14px;background:#f7f5ff}.development-handoff .eyebrow{margin:0 0 6px;color:#624596}.development-handoff span{display:block;font-size:10px;line-height:1.45;color:#6d667d;margin-bottom:11px}.development-handoff button{width:100%;margin-top:6px;border:1px solid #d4ccef;border-radius:10px;background:#fff;color:#5c3f91;padding:10px;font:700 9px 'Plus Jakarta Sans';letter-spacing:.07em;text-transform:uppercase;cursor:pointer}.development-handoff button:first-of-type{background:#5c3f91;color:#fff;border-color:#5c3f91}
 .document-history{padding:16px 0;border-top:1px solid var(--line)}.document-history .eyebrow{margin-bottom:9px}.document-history .eyebrow b{float:right;background:#f1efeb;color:#222;border-radius:20px;padding:2px 6px;font-size:9px}.document-history>button{width:100%;display:flex;align-items:center;justify-content:space-between;border:1px solid #e9e5de;background:#fff;border-radius:10px;padding:9px 10px;margin-top:6px;cursor:pointer;font:600 10px 'Plus Jakarta Sans';text-align:left}.document-history>button:hover{border-color:var(--rose);background:#fff7f8}.document-history button small,.document-history>small{font:500 9px 'Geist Mono';color:#777}
 .sdd-preview{margin-top:14px;padding:14px;border-radius:13px;background:#fff3f5;border:1px solid #f8d5dd;display:flex;flex-direction:column;gap:4px}
 .sdd-preview strong{font-size:12px}
@@ -268,6 +273,7 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:'Plus Jakarta
 .sdd-diagnosis div{min-height:68px;padding:11px;border:1px solid #ece7df;border-radius:12px;background:#faf9f6;display:flex;flex-direction:column;gap:5px}
 .sdd-diagnosis span{font:500 9px 'Geist Mono';letter-spacing:.08em;text-transform:uppercase;color:#888}
 .sdd-diagnosis strong{font:600 12px/1.35 'Plus Jakarta Sans'}
+@media print{@page{size:A4;margin:12mm}body{background:#fff!important}.app-shell{display:none!important}.sdd-modal{position:static!important;display:block!important;padding:0!important;background:#fff!important}.sdd-sheet,.proposal-sheet{width:100%!important;max-width:none!important;margin:0!important;padding:0!important;box-shadow:none!important;border-radius:0!important}.sdd-modal .close,.sdd-actions{display:none!important}.sdd-sheet section,.proposal-sheet section{break-inside:avoid}.sdd-sheet footer,.proposal-sheet footer{break-inside:avoid}.sdd-meta{margin-top:16px}}
 @media(max-width:900px){.app-shell{padding:16px}
 .topbar{height:auto;min-height:64px;gap:8px;padding:8px 10px}
 .topbar nav{display:flex;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
