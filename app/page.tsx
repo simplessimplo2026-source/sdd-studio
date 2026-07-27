@@ -58,6 +58,7 @@ export default function Home() {
     const [estimatedWeeks, setEstimatedWeeks] = useState("6");
     const [notes, setNotes] = useState("O cliente precisa usar o sistema no tablet durante atendimentos externos. A equipe administrativa acompanha tudo pelo painel de gestão.");
     const [showSdd, setShowSdd] = useState(false);
+    const [showProposal, setShowProposal] = useState(false);
     const [savedProjectId, setSavedProjectId] = useState<string | null>(null);
     const [projects, setProjects] = useState<SavedProject[]>([]);
     const [documents, setDocuments] = useState<SavedDocument[]>([]);
@@ -74,6 +75,7 @@ export default function Home() {
     const platformLabel = platform === "web" ? "Web" : platform === "mobile" ? "Aplicativo mobile" : "Web + Tablet (PWA)";
     const statusLabel = ({ draft: "Em descoberta", proposal: "Proposta enviada", approved: "Aprovado", development: "Em desenvolvimento", completed: "Concluído" } as Record<string, string>)[projectStatus] ?? "Em descoberta";
     const sddText = `# SDD — ${clientName}\n\n## Visão do projeto\n${projectName}. Sistema de gestão com experiência otimizada para ${platformLabel.toLowerCase()}.\n\n## Dados do cliente\n- Empresa: ${clientName}\n- Contato: ${contactName || "A definir"}\n- E-mail: ${email || "A definir"}\n- Telefone: ${phone || "A definir"}\n\n## Contexto da reunião\n${notes}\n\n## Escopo\n- Pacote: ${packageType === "essential" ? "Essencial" : packageType === "premium" ? "Premium" : "Profissional"}\n- Plataforma: ${platformLabel}\n- Prazo estimado: ${estimatedWeeks} semanas\n\n## Módulos aprovados\n${selectedModules.map((item) => `- ${item.title}: ${item.description}${details[item.id]?.length ? ` (${details[item.id].join(", ")})` : ""}`).join("\n")}\n\n## Investimento estimado\n${money.format(total)}\n\n## Stack recomendada\n- Next.js + TypeScript\n- PostgreSQL / Supabase\n- PWA responsivo para tablet\n- Design system definido pelo cliente\n\n## Próximas etapas\n1. Validar fluxos e regras de negócio\n2. Criar protótipo das telas principais\n3. Implementar por módulos e validar com o cliente`;
+    const proposalText = `# Proposta comercial — ${projectName}\n\nOlá, ${contactName || clientName}!\n\nPreparamos uma proposta para ${clientName} com foco em ${projectName}.\n\n## Solução\n${platformLabel} com experiência visual profissional, desenvolvimento responsivo e foco nos fluxos que mais importam para a operação.\n\n## Escopo incluído\n${selectedModules.map((item, index) => `- ${item.title}${index < activePackage.includedModules ? " (incluído no pacote)" : ` (adicional: ${money.format(item.price)})`}`).join("\n")}\n\n## Investimento\n- Pacote ${activePackage.label}: ${money.format(basePrice)}\n${additionalModules.length ? `- Adicionais: ${money.format(additionalModules.reduce((sum, item) => sum + item.price, 0))}\n` : ""}- Investimento total: ${money.format(total)}\n\n## Prazo\nEstimativa de ${estimatedWeeks} semanas, após validação e início do projeto.\n\n## Próximos passos\n1. Aprovação do escopo e investimento.\n2. Definição do cronograma de início.\n3. Início da etapa de design e desenvolvimento.\n\nEsta proposta é válida por 7 dias.`;
     useEffect(() => {
         const draft = window.localStorage.getItem("sdd-studio-draft");
         if (!draft)
@@ -229,6 +231,7 @@ export default function Home() {
     }
     function toggleDetail(moduleId: string, detail: string) { setDetails((current) => { const values = current[moduleId] || []; return { ...current, [moduleId]: values.includes(detail) ? values.filter((item) => item !== detail) : [...values, detail] }; }); }
     function downloadSdd() { const blob = new Blob([sddText], { type: "text/markdown;charset=utf-8" }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `SDD-${clientName.replace(/[^a-z0-9]/gi, "-") || "projeto"}.md`; link.click(); URL.revokeObjectURL(link.href); }
+    function downloadProposal() { const blob = new Blob([proposalText], { type: "text/markdown;charset=utf-8" }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `Proposta-${clientName.replace(/[^a-z0-9]/gi, "-") || "cliente"}.md`; link.click(); URL.revokeObjectURL(link.href); }
     async function generateSdd() { await saveProject(true); setShowSdd(true); }
     const header = <header className="topbar">
 <a className="brand" href="#" onClick={(event) => { event.preventDefault(); setScreen("catalog"); }}>
@@ -244,7 +247,7 @@ export default function Home() {
 </div>
 </header>;
     if (screen === "catalog")
-        return <main className="app-shell">{header}<section className="catalog-head">
+        return <main className="app-shell" key="catalog">{header}<section className="catalog-head">
 <div>
 <p className="eyebrow">MODELO COMERCIAL</p>
 <h1>Pacotes<span>.</span>
@@ -278,7 +281,7 @@ export default function Home() {
 </section>
 </main>;
     if (screen === "projects")
-        return <main className="app-shell">{header}<section className="projects-head">
+        return <main className="app-shell" key="projects">{header}<section className="projects-head">
 <div>
 <p className="eyebrow">SEU ESPAÇO DE TRABALHO</p>
 <h1>Projetos<span>.</span>
@@ -322,7 +325,7 @@ export default function Home() {
 <strong className="project-value">{money.format(Number(project.estimatedValue))}</strong>
 <span className="row-arrow">→</span>
 </button>) : <div className="empty-state">Nenhum projeto salvo ainda. Crie uma reunião e toque em <strong>Salvar rascunho</strong>.</div>}</section>{notice && <p className="notice">{notice}</p>}</main>;
-    return <main className="app-shell">{header}<section className="meeting-head">
+    return <main className="app-shell" key="meeting">{header}<section className="meeting-head">
 <div>
 <p className="eyebrow">REUNIÃO EM ANDAMENTO <i /> {new Date().toLocaleDateString("pt-BR")}</p>
 <h1>Descoberta de projeto<span>.</span>
@@ -432,7 +435,7 @@ export default function Home() {
 </div>
 {savedProjectId && <div className="document-history"><p className="eyebrow">HISTÓRICO DE SDD <b>{documents.length}</b></p>{documents.length ? documents.map((document) => <button key={document.id} onClick={() => navigator.clipboard?.writeText(document.content).then(() => setNotice(`SDD versão ${document.version} copiado para a área de transferência.`))}><span>SDD · V{String(document.version).padStart(2, "0")}</span><small>{new Date(document.createdAt).toLocaleDateString("pt-BR")}</small></button>) : <small>Nenhum SDD gerado ainda.</small>}</div>}
 <button className="primary-button" onClick={generateSdd} disabled={saving}>{saving ? "Salvando..." : "Gerar SDD completo"} <span>→</span>
-</button>{savedProjectId && <button className="delete-project" onClick={deleteProject} disabled={saving}>Excluir este projeto</button>}{notice && <p className="notice">{notice}</p>}</aside>
+</button><button className="proposal-button" onClick={() => setShowProposal(true)}>Gerar proposta comercial</button>{savedProjectId && <button className="delete-project" onClick={deleteProject} disabled={saving}>Excluir este projeto</button>}{notice && <p className="notice">{notice}</p>}</aside>
 </div>{showSdd && <div className="sdd-modal" role="dialog" aria-modal="true" aria-label="SDD gerado">
 <div className="sdd-sheet">
 <header>
@@ -491,5 +494,5 @@ export default function Home() {
 </div>
 </footer>
 </div>
-</div>}</main>;
+</div>}{showProposal && <div className="sdd-modal" role="dialog" aria-modal="true" aria-label="Proposta comercial"><div className="proposal-sheet"><header><div><p className="eyebrow">SDD STUDIO · PROPOSTA COMERCIAL</p><h2>{clientName}<span>.</span></h2></div><button className="close" onClick={() => setShowProposal(false)} aria-label="Fechar">×</button></header><div className="proposal-intro"><p>PROPOSTA PARA</p><strong>{projectName}</strong><span>{platformLabel} · prazo estimado de {estimatedWeeks} semanas</span></div><section><p className="eyebrow">ESCOPO DA SOLUÇÃO</p><h3>Uma experiência profissional feita para a operação.</h3><p>{packageOffer}</p></section><section className="sdd-modules"><p className="eyebrow">MÓDULOS SELECIONADOS</p>{selectedModules.map((item, index) => <div key={item.id}><b>0{index + 1}</b><span><strong>{item.title}</strong><small>{index < activePackage.includedModules ? "Incluído no pacote" : "Módulo adicional"}</small></span><em>{index < activePackage.includedModules ? "Incluído" : money.format(item.price)}</em></div>)}</section><section className="proposal-value"><span>INVESTIMENTO TOTAL</span><strong>{money.format(total)}</strong><small>Proposta válida por 7 dias.</small></section><footer><div><span>PRÓXIMO PASSO</span><strong>Aprovar o escopo e iniciar o cronograma.</strong></div><div className="sdd-actions"><button onClick={() => navigator.clipboard?.writeText(proposalText).then(() => setNotice("Proposta copiada para envio."))}>Copiar proposta</button><button className="download" onClick={downloadProposal}>Baixar .MD</button></div></footer></div></div>}</main>;
 }
