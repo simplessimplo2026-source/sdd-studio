@@ -48,8 +48,8 @@ const packages = [
     { id: "professional", name: "Profissional", description: "Para operações conectadas", price: "R$ 3.000", features: ["Até 8 telas ou fluxos", "4 módulos incluídos · máximo 6", "Até 15 usuários · 3 perfis de acesso", "Até 2 integrações externas", "Dashboard + até 3 relatórios", "2 ciclos de ajustes + treinamento"] },
     { id: "premium", name: "Premium", description: "Para sistemas completos", price: "R$ 5.000", features: ["Até 15 telas ou fluxos", "8 módulos incluídos · adicionais sem limite", "Até 50 usuários · 5 perfis de acesso", "Até 4 integrações externas", "Dashboard executivo + relatórios estratégicos", "Entrega por etapas + treinamento ampliado"] },
 ] as const;
-type Discovery = { objective: string; users: string; userCount: string; pain: string; integrations: string; successMetric: string };
-const emptyDiscovery: Discovery = { objective: "", users: "", userCount: "", pain: "", integrations: "", successMetric: "" };
+type Discovery = { objective: string; users: string; userCount: string; profileCount: string; pain: string; integrations: string; integrationCount: string; successMetric: string };
+const emptyDiscovery: Discovery = { objective: "", users: "", userCount: "", profileCount: "", pain: "", integrations: "", integrationCount: "", successMetric: "" };
 function readMeetingNotes(value: string): { notes: string; discovery: Discovery } {
     try {
         const parsed = JSON.parse(value);
@@ -90,6 +90,14 @@ export default function Home() {
     const userCountDisplay = discovery.userCount === "51" ? "Mais de 50 usuários" : discovery.userCount ? `Até ${discovery.userCount} usuários` : "A definir";
     const userLimit = packageUserLimits[packageType as keyof typeof packageUserLimits] ?? packageUserLimits.professional;
     const userLimitWarning = expectedUserCount > userLimit ? expectedUserCount > packageUserLimits.premium ? "A demanda ultrapassa o Premium e precisa de uma proposta personalizada." : `Este pacote comporta até ${userLimit} usuários. Recomendamos subir o pacote.` : "";
+    const packageIntegrationLimits = { essential: 0, professional: 2, premium: 4 } as const;
+    const expectedIntegrationCount = Number(discovery.integrationCount) || 0;
+    const integrationLimit = packageIntegrationLimits[packageType as keyof typeof packageIntegrationLimits] ?? packageIntegrationLimits.professional;
+    const integrationLimitWarning = expectedIntegrationCount > integrationLimit ? expectedIntegrationCount > packageIntegrationLimits.premium ? "A demanda tem mais de 4 integrações e precisa de uma proposta personalizada." : `Este pacote inclui até ${integrationLimit} integrações. Recomendamos subir o pacote.` : "";
+    const packageProfileLimits = { essential: 1, professional: 3, premium: 5 } as const;
+    const expectedProfileCount = Number(discovery.profileCount) || 0;
+    const profileLimit = packageProfileLimits[packageType as keyof typeof packageProfileLimits] ?? packageProfileLimits.professional;
+    const profileLimitWarning = expectedProfileCount > profileLimit ? expectedProfileCount > packageProfileLimits.premium ? "A demanda tem mais de 5 perfis e precisa de uma proposta personalizada." : `Este pacote inclui até ${profileLimit} perfis de acesso. Recomendamos subir o pacote.` : "";
     const basePrice = activePackage.base;
     const includedModules = selectedModules.slice(0, activePackage.includedModules);
     const additionalModules = selectedModules.slice(activePackage.includedModules);
@@ -108,6 +116,8 @@ export default function Home() {
         { label: "Objetivo definido", complete: Boolean(discovery.objective.trim()) },
         { label: "Módulos selecionados", complete: selectedModules.length > 0 },
         { label: "Quantidade de usuários", complete: Boolean(discovery.userCount) },
+        { label: "Perfis de acesso", complete: Boolean(discovery.profileCount) },
+        { label: "Quantidade de integrações", complete: Boolean(discovery.integrationCount) },
         { label: "Anotações da reunião", complete: Boolean(notes.trim()) },
     ];
     const pendingReadiness = readinessItems.filter((item) => !item.complete).length;
@@ -438,14 +448,20 @@ export default function Home() {
 </label>
 <label>Quantidade estimada de usuários<select value={discovery.userCount} onChange={(event) => setDiscovery((current) => ({ ...current, userCount: event.target.value }))}><option value="">Selecione</option><option value="1">1 usuário</option><option value="3">Até 3 usuários</option><option value="5">4 a 5 usuários</option><option value="15">6 a 15 usuários</option><option value="30">16 a 30 usuários</option><option value="50">31 a 50 usuários</option><option value="51">Mais de 50 usuários</option></select>
 </label>
+<label>Perfis de acesso<select value={discovery.profileCount} onChange={(event) => setDiscovery((current) => ({ ...current, profileCount: event.target.value }))}><option value="">Selecione</option><option value="1">1 perfil</option><option value="2">2 perfis</option><option value="3">3 perfis</option><option value="4">4 perfis</option><option value="5">5 perfis</option><option value="6">Mais de 5 perfis</option></select>
+</label>
 <label>Maior dor atual<input value={discovery.pain} onChange={(event) => setDiscovery((current) => ({ ...current, pain: event.target.value }))} placeholder="Ex.: informações espalhadas em WhatsApp"/>
 </label>
 <label>Integrações necessárias<input value={discovery.integrations} onChange={(event) => setDiscovery((current) => ({ ...current, integrations: event.target.value }))} placeholder="Ex.: WhatsApp, ERP, pagamentos"/>
+</label>
+<label>Quantidade de integrações<select value={discovery.integrationCount} onChange={(event) => setDiscovery((current) => ({ ...current, integrationCount: event.target.value }))}><option value="">Selecione</option><option value="0">Nenhuma</option><option value="1">1 integração</option><option value="2">2 integrações</option><option value="3">3 integrações</option><option value="4">4 integrações</option><option value="5">Mais de 4 integrações</option></select>
 </label>
 <label className="discovery-wide">Como saberemos que deu certo?<input value={discovery.successMetric} onChange={(event) => setDiscovery((current) => ({ ...current, successMetric: event.target.value }))} placeholder="Ex.: orçamento emitido em menos de 5 minutos"/>
 </label>
 </div>
 {userLimitWarning && <p className="package-fit-warning"><b>Pacote incompatível:</b> {userLimitWarning}</p>}
+{integrationLimitWarning && <p className="package-fit-warning"><b>Pacote incompatível:</b> {integrationLimitWarning}</p>}
+{profileLimitWarning && <p className="package-fit-warning"><b>Pacote incompatível:</b> {profileLimitWarning}</p>}
 <div className="section-title solution-title">
 <div>
 <p className="eyebrow">02 — SOLUÇÃO</p>
