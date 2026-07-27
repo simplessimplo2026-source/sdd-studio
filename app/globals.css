@@ -41,9 +41,15 @@
 .project-form input{width:100%;border:1px solid #dedbd4;background:#fff;border-radius:11px;padding:12px;color:var(--ink);font:600 13px 'Plus Jakarta Sans';outline:none}
 .project-form input:focus{border-color:var(--rose);box-shadow:0 0 0 3px #e11d4815}
 .solution-title{padding-top:2px}
+.discovery-title{padding-top:2px}
+.discovery-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:18px;background:#fff8f9;border:1px solid #f5d5dd;border-radius:18px;margin:0 0 34px}
+.discovery-grid label{display:flex;flex-direction:column;gap:7px;font:600 10px 'Geist Mono';letter-spacing:.08em;color:#777;text-transform:uppercase}
+.discovery-grid input{width:100%;border:1px solid #eadde0;background:#fff;border-radius:11px;padding:12px;color:var(--ink);font:600 13px 'Plus Jakarta Sans';outline:none}
+.discovery-grid input:focus{border-color:var(--rose);box-shadow:0 0 0 3px #e11d4815}
+.discovery-grid .discovery-wide{grid-column:1/-1}
 .notice{margin:16px 0 0;padding:11px 13px;border-radius:12px;background:#fce9ee;color:#a20f34;font-size:11px;line-height:1.45}
 .empty-state{padding:28px 4px;color:#777;font-size:13px;line-height:1.6}
-@media(max-width:650px){.project-form{grid-template-columns:1fr}
+@media(max-width:650px){.project-form,.discovery-grid{grid-template-columns:1fr}
 }
 
 .catalog-head{display:flex;justify-content:space-between;align-items:end;padding:70px 10px 34px}

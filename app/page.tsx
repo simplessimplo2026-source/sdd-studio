@@ -48,6 +48,16 @@ const packages = [
     { id: "professional", name: "Profissional", description: "Para operações conectadas", price: "R$ 3.000", features: ["Até 8 telas ou fluxos", "4 módulos incluídos", "Dashboard e relatórios essenciais", "Módulos extras cobrados à parte"] },
     { id: "premium", name: "Premium", description: "Para sistemas completos", price: "R$ 5.000", features: ["Até 15 telas ou fluxos", "8 módulos incluídos", "Experiência visual refinada", "Módulos extras cobrados à parte"] },
 ] as const;
+type Discovery = { objective: string; users: string; pain: string; integrations: string; successMetric: string };
+const emptyDiscovery: Discovery = { objective: "", users: "", pain: "", integrations: "", successMetric: "" };
+function readMeetingNotes(value: string): { notes: string; discovery: Discovery } {
+    try {
+        const parsed = JSON.parse(value);
+        if (parsed?.format === "sdd-studio-meeting")
+            return { notes: typeof parsed.notes === "string" ? parsed.notes : "", discovery: { ...emptyDiscovery, ...(parsed.discovery || {}) } };
+    } catch { /* Mantém compatibilidade com reuniões antigas. */ }
+    return { notes: value || "", discovery: emptyDiscovery };
+}
 export default function Home() {
     const [screen, setScreen] = useState<"meeting" | "projects" | "catalog">("catalog");
     const [selected, setSelected] = useState<string[]>(["clients", "finance", "service"]);
@@ -62,6 +72,7 @@ export default function Home() {
     const [projectStatus, setProjectStatus] = useState("draft");
     const [estimatedWeeks, setEstimatedWeeks] = useState("6");
     const [notes, setNotes] = useState("O cliente precisa usar o sistema no tablet durante atendimentos externos. A equipe administrativa acompanha tudo pelo painel de gestão.");
+    const [discovery, setDiscovery] = useState<Discovery>(emptyDiscovery);
     const [showSdd, setShowSdd] = useState(false);
     const [showProposal, setShowProposal] = useState(false);
     const [savedProjectId, setSavedProjectId] = useState<string | null>(null);
@@ -79,7 +90,7 @@ export default function Home() {
     const total = useMemo(() => basePrice + additionalModules.reduce((sum, item) => sum + item.price, 0), [additionalModules, basePrice]);
     const platformLabel = platform === "web" ? "Web" : platform === "mobile" ? "Aplicativo mobile" : "Web + Tablet (PWA)";
     const statusLabel = ({ draft: "Em descoberta", proposal: "Proposta enviada", approved: "Aprovado", development: "Em desenvolvimento", completed: "Concluído" } as Record<string, string>)[projectStatus] ?? "Em descoberta";
-    const sddText = `# SDD — ${clientName}\n\n## Visão do projeto\n${projectName}. Sistema de gestão com experiência otimizada para ${platformLabel.toLowerCase()}.\n\n## Dados do cliente\n- Empresa: ${clientName}\n- Contato: ${contactName || "A definir"}\n- E-mail: ${email || "A definir"}\n- Telefone: ${phone || "A definir"}\n\n## Contexto da reunião\n${notes}\n\n## Escopo\n- Pacote: ${packageType === "essential" ? "Essencial" : packageType === "premium" ? "Premium" : "Profissional"}\n- Plataforma: ${platformLabel}\n- Prazo estimado: ${estimatedWeeks} semanas\n\n## Módulos aprovados\n${selectedModules.map((item) => `- ${item.title}: ${item.description}${details[item.id]?.length ? ` (${details[item.id].join(", ")})` : ""}`).join("\n")}\n\n## Investimento estimado\n${money.format(total)}\n\n## Stack recomendada\n- Next.js + TypeScript\n- PostgreSQL / Supabase\n- PWA responsivo para tablet\n- Design system definido pelo cliente\n\n## Próximas etapas\n1. Validar fluxos e regras de negócio\n2. Criar protótipo das telas principais\n3. Implementar por módulos e validar com o cliente`;
+    const sddText = `# SDD — ${clientName}\n\n## Visão do projeto\n${projectName}. Sistema de gestão com experiência otimizada para ${platformLabel.toLowerCase()}.\n\n## Dados do cliente\n- Empresa: ${clientName}\n- Contato: ${contactName || "A definir"}\n- E-mail: ${email || "A definir"}\n- Telefone: ${phone || "A definir"}\n\n## Diagnóstico da descoberta\n- Objetivo principal: ${discovery.objective || "A definir"}\n- Usuários e perfis: ${discovery.users || "A definir"}\n- Dor atual: ${discovery.pain || "A definir"}\n- Integrações necessárias: ${discovery.integrations || "Nenhuma definida"}\n- Critério de sucesso: ${discovery.successMetric || "A definir"}\n\n## Contexto da reunião\n${notes}\n\n## Escopo\n- Pacote: ${packageType === "essential" ? "Essencial" : packageType === "premium" ? "Premium" : "Profissional"}\n- Plataforma: ${platformLabel}\n- Prazo estimado: ${estimatedWeeks} semanas\n\n## Módulos aprovados\n${selectedModules.map((item) => `- ${item.title}: ${item.description}${details[item.id]?.length ? ` (${details[item.id].join(", ")})` : ""}`).join("\n")}\n\n## Investimento estimado\n${money.format(total)}\n\n## Stack recomendada\n- Next.js + TypeScript\n- PostgreSQL / Supabase\n- PWA responsivo para tablet\n- Design system definido pelo cliente\n\n## Próximas etapas\n1. Validar fluxos e regras de negócio\n2. Criar protótipo das telas principais\n3. Implementar por módulos e validar com o cliente`;
     const proposalText = `# Proposta comercial — ${projectName}\n\nOlá, ${contactName || clientName}!\n\nPreparamos uma proposta para ${clientName} com foco em ${projectName}.\n\n## Solução\n${platformLabel} com experiência visual profissional, desenvolvimento responsivo e foco nos fluxos que mais importam para a operação.\n\n## Escopo incluído\n${selectedModules.map((item, index) => `- ${item.title}${index < activePackage.includedModules ? " (incluído no pacote)" : ` (adicional: ${money.format(item.price)})`}`).join("\n")}\n\n## Investimento\n- Pacote ${activePackage.label}: ${money.format(basePrice)}\n${additionalModules.length ? `- Adicionais: ${money.format(additionalModules.reduce((sum, item) => sum + item.price, 0))}\n` : ""}- Investimento total: ${money.format(total)}\n\n## Prazo\nEstimativa de ${estimatedWeeks} semanas, após validação e início do projeto.\n\n## Próximos passos\n1. Aprovação do escopo e investimento.\n2. Definição do cronograma de início.\n3. Início da etapa de design e desenvolvimento.\n\nEsta proposta é válida por 7 dias.`;
     useEffect(() => {
         const draft = window.localStorage.getItem("sdd-studio-draft");
@@ -111,12 +122,14 @@ export default function Home() {
                 setEstimatedWeeks(value.estimatedWeeks);
             if (value.notes)
                 setNotes(value.notes);
+            if (value.discovery)
+                setDiscovery({ ...emptyDiscovery, ...value.discovery });
         }
         catch { /* a new draft is safer than broken data */ }
     }, []);
     useEffect(() => {
-        window.localStorage.setItem("sdd-studio-draft", JSON.stringify({ selected, details, clientName, contactName, email, phone, projectName, platform, packageType, projectStatus, estimatedWeeks, notes }));
-    }, [selected, details, clientName, contactName, email, phone, projectName, platform, packageType, projectStatus, estimatedWeeks, notes]);
+        window.localStorage.setItem("sdd-studio-draft", JSON.stringify({ selected, details, clientName, contactName, email, phone, projectName, platform, packageType, projectStatus, estimatedWeeks, notes, discovery }));
+    }, [selected, details, clientName, contactName, email, phone, projectName, platform, packageType, projectStatus, estimatedWeeks, notes, discovery]);
     useEffect(() => {
         setSelected((current) => current.length > activePackage.maxModules ? current.slice(0, activePackage.maxModules) : current);
     }, [activePackage.maxModules]);
@@ -154,7 +167,9 @@ export default function Home() {
             setProjectStatus(project.status || "draft");
             setPlatform(project.platform || "web_tablet");
             setEstimatedWeeks(String(project.estimatedWeeks || 6));
-            setNotes(project.meetingNotes || "");
+            const savedMeeting = readMeetingNotes(project.meetingNotes || "");
+            setNotes(savedMeeting.notes);
+            setDiscovery(savedMeeting.discovery);
             setSelected(project.modules.map((module: { key: string }) => module.key));
             setDetails(Object.fromEntries(project.modules.map((module: { key: string; options: string[] }) => [module.key, module.options])));
             setSavedProjectId(projectId);
@@ -199,7 +214,7 @@ export default function Home() {
             const endpoint = savedProjectId ? `/api/projects/${savedProjectId}` : "/api/projects";
             const response = await fetch(endpoint, {
                 method: savedProjectId ? "PUT" : "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ clientName, contactName, email, phone, projectName, status: projectStatus, packageType, platform, estimatedValue: total, estimatedWeeks: Number(estimatedWeeks) || 0, meetingNotes: notes, modules: selectedModules.map((item) => ({ key: item.id, name: item.title, price: item.price, options: details[item.id] || [] })) }),
+                body: JSON.stringify({ clientName, contactName, email, phone, projectName, status: projectStatus, packageType, platform, estimatedValue: total, estimatedWeeks: Number(estimatedWeeks) || 0, meetingNotes: JSON.stringify({ format: "sdd-studio-meeting", notes, discovery }), modules: selectedModules.map((item) => ({ key: item.id, name: item.title, price: item.price, options: details[item.id] || [] })) }),
             });
             const data = await response.json();
             if (!response.ok)
@@ -377,6 +392,25 @@ export default function Home() {
 <label>Status comercial<select value={projectStatus} onChange={(event) => setProjectStatus(event.target.value)}><option value="draft">Em descoberta</option><option value="proposal">Proposta enviada</option><option value="approved">Aprovado</option><option value="development">Em desenvolvimento</option><option value="completed">Concluído</option></select>
 </label>
 <label>Prazo estimado<select value={estimatedWeeks} onChange={(event) => setEstimatedWeeks(event.target.value)}><option value="2">2 semanas</option><option value="4">4 semanas</option><option value="6">6 semanas</option><option value="8">8 semanas</option><option value="12">12 semanas</option></select>
+</label>
+</div>
+<div className="section-title discovery-title">
+<div>
+<p className="eyebrow">01.1 — DIAGNÓSTICO</p>
+<h2>O que define o sucesso deste projeto?</h2>
+</div>
+<p>Essas respostas entram automaticamente no SDD para orientar a IA e o desenvolvimento.</p>
+</div>
+<div className="discovery-grid">
+<label>Objetivo principal<input value={discovery.objective} onChange={(event) => setDiscovery((current) => ({ ...current, objective: event.target.value }))} placeholder="Ex.: reduzir o tempo de atendimento"/>
+</label>
+<label>Quem vai usar?<input value={discovery.users} onChange={(event) => setDiscovery((current) => ({ ...current, users: event.target.value }))} placeholder="Ex.: equipe externa e administrativo"/>
+</label>
+<label>Maior dor atual<input value={discovery.pain} onChange={(event) => setDiscovery((current) => ({ ...current, pain: event.target.value }))} placeholder="Ex.: informações espalhadas em WhatsApp"/>
+</label>
+<label>Integrações necessárias<input value={discovery.integrations} onChange={(event) => setDiscovery((current) => ({ ...current, integrations: event.target.value }))} placeholder="Ex.: WhatsApp, ERP, pagamentos"/>
+</label>
+<label className="discovery-wide">Como saberemos que deu certo?<input value={discovery.successMetric} onChange={(event) => setDiscovery((current) => ({ ...current, successMetric: event.target.value }))} placeholder="Ex.: orçamento emitido em menos de 5 minutos"/>
 </label>
 </div>
 <div className="section-title solution-title">
