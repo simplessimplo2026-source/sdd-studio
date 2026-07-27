@@ -77,6 +77,8 @@ export default function Home() {
     const [showProposal, setShowProposal] = useState(false);
     const [savedProjectId, setSavedProjectId] = useState<string | null>(null);
     const [projects, setProjects] = useState<SavedProject[]>([]);
+    const [projectSearch, setProjectSearch] = useState("");
+    const [projectFilter, setProjectFilter] = useState("all");
     const [documents, setDocuments] = useState<SavedDocument[]>([]);
     const [notice, setNotice] = useState("");
     const [saving, setSaving] = useState(false);
@@ -90,6 +92,10 @@ export default function Home() {
     const total = useMemo(() => basePrice + additionalModules.reduce((sum, item) => sum + item.price, 0), [additionalModules, basePrice]);
     const platformLabel = platform === "web" ? "Web" : platform === "mobile" ? "Aplicativo mobile" : "Web + Tablet (PWA)";
     const statusLabel = ({ draft: "Em descoberta", proposal: "Proposta enviada", approved: "Aprovado", development: "Em desenvolvimento", completed: "Concluído" } as Record<string, string>)[projectStatus] ?? "Em descoberta";
+    const filteredProjects = useMemo(() => {
+        const query = projectSearch.trim().toLocaleLowerCase("pt-BR");
+        return projects.filter((project) => (projectFilter === "all" || project.status === projectFilter) && (!query || `${project.clientName} ${project.name}`.toLocaleLowerCase("pt-BR").includes(query)));
+    }, [projects, projectSearch, projectFilter]);
     const sddText = `# SDD — ${clientName}\n\n## Visão do projeto\n${projectName}. Sistema de gestão com experiência otimizada para ${platformLabel.toLowerCase()}.\n\n## Dados do cliente\n- Empresa: ${clientName}\n- Contato: ${contactName || "A definir"}\n- E-mail: ${email || "A definir"}\n- Telefone: ${phone || "A definir"}\n\n## Diagnóstico da descoberta\n- Objetivo principal: ${discovery.objective || "A definir"}\n- Usuários e perfis: ${discovery.users || "A definir"}\n- Dor atual: ${discovery.pain || "A definir"}\n- Integrações necessárias: ${discovery.integrations || "Nenhuma definida"}\n- Critério de sucesso: ${discovery.successMetric || "A definir"}\n\n## Contexto da reunião\n${notes}\n\n## Escopo\n- Pacote: ${packageType === "essential" ? "Essencial" : packageType === "premium" ? "Premium" : "Profissional"}\n- Plataforma: ${platformLabel}\n- Prazo estimado: ${estimatedWeeks} semanas\n\n## Módulos aprovados\n${selectedModules.map((item) => `- ${item.title}: ${item.description}${details[item.id]?.length ? ` (${details[item.id].join(", ")})` : ""}`).join("\n")}\n\n## Investimento estimado\n${money.format(total)}\n\n## Stack recomendada\n- Next.js + TypeScript\n- PostgreSQL / Supabase\n- PWA responsivo para tablet\n- Design system definido pelo cliente\n\n## Próximas etapas\n1. Validar fluxos e regras de negócio\n2. Criar protótipo das telas principais\n3. Implementar por módulos e validar com o cliente`;
     const proposalText = `# Proposta comercial — ${projectName}\n\nOlá, ${contactName || clientName}!\n\nPreparamos uma proposta para ${clientName} com foco em ${projectName}.\n\n## Solução\n${platformLabel} com experiência visual profissional, desenvolvimento responsivo e foco nos fluxos que mais importam para a operação.\n\n## Escopo incluído\n${selectedModules.map((item, index) => `- ${item.title}${index < activePackage.includedModules ? " (incluído no pacote)" : ` (adicional: ${money.format(item.price)})`}`).join("\n")}\n\n## Investimento\n- Pacote ${activePackage.label}: ${money.format(basePrice)}\n${additionalModules.length ? `- Adicionais: ${money.format(additionalModules.reduce((sum, item) => sum + item.price, 0))}\n` : ""}- Investimento total: ${money.format(total)}\n\n## Prazo\nEstimativa de ${estimatedWeeks} semanas, após validação e início do projeto.\n\n## Próximos passos\n1. Aprovação do escopo e investimento.\n2. Definição do cronograma de início.\n3. Início da etapa de design e desenvolvimento.\n\nEsta proposta é válida por 7 dias.`;
     useEffect(() => {
@@ -334,17 +340,22 @@ export default function Home() {
 <h2>Reuniões e propostas</h2>
 </div>
 <button onClick={loadProjects}>Atualizar lista</button>
-</div>{projects.length ? projects.map((project) => <button className="project-row" key={project.id} onClick={() => openProject(project.id)}>
+</div><div className="project-controls">
+<input aria-label="Buscar projeto" value={projectSearch} onChange={(event) => setProjectSearch(event.target.value)} placeholder="Buscar cliente ou projeto..."/>
+<div className="project-filters" aria-label="Filtrar projetos por status">
+{[["all", "Todos"], ["draft", "Descoberta"], ["proposal", "Propostas"], ["approved", "Aprovados"], ["development", "Em desenvolvimento"], ["completed", "Concluídos"]].map(([value, label]) => <button type="button" key={value} className={projectFilter === value ? "active" : ""} onClick={() => setProjectFilter(value)}>{label}</button>)}
+</div>
+</div>{filteredProjects.length ? filteredProjects.map((project) => <button className="project-row" key={project.id} onClick={() => openProject(project.id)}>
 <span className="project-avatar">{project.clientName[0]}</span>
 <span className="project-name">
 <strong>{project.clientName}</strong>
 <small>{project.name}</small>
 </span>
-<span className="status s1">{project.status}</span>
+<span className={`status status-${project.status}`}>{({ draft: "Descoberta", proposal: "Proposta", approved: "Aprovado", development: "Em desenvolvimento", completed: "Concluído" } as Record<string, string>)[project.status] || project.status}</span>
 <span className="project-date">{new Date(project.updatedAt).toLocaleDateString("pt-BR")}</span>
 <strong className="project-value">{money.format(Number(project.estimatedValue))}</strong>
 <span className="row-arrow">→</span>
-</button>) : <div className="empty-state">Nenhum projeto salvo ainda. Crie uma reunião e toque em <strong>Salvar rascunho</strong>.</div>}</section>{notice && <p className="notice">{notice}</p>}</main>;
+</button>) : <div className="empty-state">{projects.length ? "Nenhum projeto encontrado com esses filtros." : <>Nenhum projeto salvo ainda. Crie uma reunião e toque em <strong>Salvar rascunho</strong>.</>}</div>}</section>{notice && <p className="notice">{notice}</p>}</main>;
     return <main className="app-shell" key="meeting">{header}<section className="meeting-head">
 <div>
 <p className="eyebrow">REUNIÃO EM ANDAMENTO <i /> {new Date().toLocaleDateString("pt-BR")}</p>
