@@ -48,8 +48,8 @@ const packages = [
     { id: "professional", name: "Profissional", description: "Para operações conectadas", price: "R$ 3.000", features: ["Até 8 telas ou fluxos", "4 módulos incluídos · máximo 6", "Até 15 usuários · 3 perfis de acesso", "Até 2 integrações externas", "Dashboard + até 3 relatórios", "2 ciclos de ajustes + treinamento"] },
     { id: "premium", name: "Premium", description: "Para sistemas completos", price: "R$ 5.000", features: ["Até 15 telas ou fluxos", "8 módulos incluídos · adicionais sem limite", "Até 50 usuários · 5 perfis de acesso", "Até 4 integrações externas", "Dashboard executivo + relatórios estratégicos", "Entrega por etapas + treinamento ampliado"] },
 ] as const;
-type Discovery = { objective: string; users: string; userCount: string; profileCount: string; pain: string; integrations: string; integrationCount: string; successMetric: string };
-const emptyDiscovery: Discovery = { objective: "", users: "", userCount: "", profileCount: "", pain: "", integrations: "", integrationCount: "", successMetric: "" };
+type Discovery = { objective: string; users: string; userCount: string; profileCount: string; screenCount: string; pain: string; integrations: string; integrationCount: string; successMetric: string };
+const emptyDiscovery: Discovery = { objective: "", users: "", userCount: "", profileCount: "", screenCount: "", pain: "", integrations: "", integrationCount: "", successMetric: "" };
 function readMeetingNotes(value: string): { notes: string; discovery: Discovery } {
     try {
         const parsed = JSON.parse(value);
@@ -98,6 +98,10 @@ export default function Home() {
     const expectedProfileCount = Number(discovery.profileCount) || 0;
     const profileLimit = packageProfileLimits[packageType as keyof typeof packageProfileLimits] ?? packageProfileLimits.professional;
     const profileLimitWarning = expectedProfileCount > profileLimit ? expectedProfileCount > packageProfileLimits.premium ? "A demanda tem mais de 5 perfis e precisa de uma proposta personalizada." : `Este pacote inclui até ${profileLimit} perfis de acesso. Recomendamos subir o pacote.` : "";
+    const packageScreenLimits = { essential: 3, professional: 8, premium: 15 } as const;
+    const expectedScreenCount = Number(discovery.screenCount) || 0;
+    const screenLimit = packageScreenLimits[packageType as keyof typeof packageScreenLimits] ?? packageScreenLimits.professional;
+    const screenLimitWarning = expectedScreenCount > screenLimit ? expectedScreenCount > packageScreenLimits.premium ? "A demanda tem mais de 15 telas ou fluxos e precisa de uma proposta personalizada." : `Este pacote contempla até ${screenLimit} telas ou fluxos. Recomendamos subir o pacote.` : "";
     const basePrice = activePackage.base;
     const includedModules = selectedModules.slice(0, activePackage.includedModules);
     const additionalModules = selectedModules.slice(activePackage.includedModules);
@@ -117,6 +121,7 @@ export default function Home() {
         { label: "Módulos selecionados", complete: selectedModules.length > 0 },
         { label: "Quantidade de usuários", complete: Boolean(discovery.userCount) },
         { label: "Perfis de acesso", complete: Boolean(discovery.profileCount) },
+        { label: "Telas e fluxos", complete: Boolean(discovery.screenCount) },
         { label: "Quantidade de integrações", complete: Boolean(discovery.integrationCount) },
         { label: "Anotações da reunião", complete: Boolean(notes.trim()) },
     ];
@@ -450,6 +455,8 @@ export default function Home() {
 </label>
 <label>Perfis de acesso<select value={discovery.profileCount} onChange={(event) => setDiscovery((current) => ({ ...current, profileCount: event.target.value }))}><option value="">Selecione</option><option value="1">1 perfil</option><option value="2">2 perfis</option><option value="3">3 perfis</option><option value="4">4 perfis</option><option value="5">5 perfis</option><option value="6">Mais de 5 perfis</option></select>
 </label>
+<label>Telas ou fluxos estimados<select value={discovery.screenCount} onChange={(event) => setDiscovery((current) => ({ ...current, screenCount: event.target.value }))}><option value="">Selecione</option><option value="3">Até 3</option><option value="5">4 a 5</option><option value="8">6 a 8</option><option value="12">9 a 12</option><option value="15">13 a 15</option><option value="16">Mais de 15</option></select>
+</label>
 <label>Maior dor atual<input value={discovery.pain} onChange={(event) => setDiscovery((current) => ({ ...current, pain: event.target.value }))} placeholder="Ex.: informações espalhadas em WhatsApp"/>
 </label>
 <label>Integrações necessárias<input value={discovery.integrations} onChange={(event) => setDiscovery((current) => ({ ...current, integrations: event.target.value }))} placeholder="Ex.: WhatsApp, ERP, pagamentos"/>
@@ -462,6 +469,7 @@ export default function Home() {
 {userLimitWarning && <p className="package-fit-warning"><b>Pacote incompatível:</b> {userLimitWarning}</p>}
 {integrationLimitWarning && <p className="package-fit-warning"><b>Pacote incompatível:</b> {integrationLimitWarning}</p>}
 {profileLimitWarning && <p className="package-fit-warning"><b>Pacote incompatível:</b> {profileLimitWarning}</p>}
+{screenLimitWarning && <p className="package-fit-warning"><b>Pacote incompatível:</b> {screenLimitWarning}</p>}
 <div className="section-title solution-title">
 <div>
 <p className="eyebrow">02 — SOLUÇÃO</p>
