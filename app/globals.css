@@ -150,8 +150,9 @@
 .sdd-sheet footer{display:flex;align-items:end;justify-content:space-between;padding-top:28px}
 .sdd-sheet footer span{display:block;font:500 9px 'Geist Mono';letter-spacing:.1em;color:#777}
 .sdd-sheet footer strong{font:600 29px 'Playfair Display';color:var(--rose)}
-.sdd-actions{display:flex;gap:8px}
+.sdd-actions{display:flex;gap:8px;flex-wrap:wrap}
 .sdd-actions button{border:1px solid #ddd8d0;background:white;border-radius:11px;padding:11px 14px;font:700 10px 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.sdd-actions .ai-prompt{border-color:#ebc8d2;background:#fff6f8;color:#a31743}
 .sdd-actions .download{background:#111;color:#fff;border-color:#111}
 @media(max-width:600px){.sdd-modal{padding:10px}
 .sdd-sheet{padding:26px;border-radius:20px}
