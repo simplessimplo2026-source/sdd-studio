@@ -51,7 +51,7 @@
 .catalog-head h1 span{color:var(--rose)}
 .package-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
 .package-card{position:relative;background:#fff;border:1px solid var(--line);border-radius:25px;padding:28px;display:flex;flex-direction:column;align-items:start}
-.package-card.featured{border-color:var(--rose);box-shadow:0 10px 35px #e11d4815}
+.package-card.is-selected{border:2px solid var(--rose);box-shadow:0 10px 35px #e11d4815}
 .package-number{position:absolute;right:24px;top:24px;font:500 11px 'Geist Mono';color:#aaa}
 .package-card h2{font:600 33px 'Playfair Display';margin:0}
 .package-card>p:not(.eyebrow){font-size:12px;color:#777;min-height:32px}
@@ -61,7 +61,7 @@
 .package-card li{font-size:12px;padding:7px 0}
 .package-card li:before{content:'+';color:var(--rose);margin-right:8px}
 .package-card button{width:100%;background:#111;border:0;color:#fff;border-radius:12px;padding:13px;font:700 10px 'Plus Jakarta Sans';letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
-.package-card.featured button{background:var(--rose)}
+.package-card.is-selected button{background:var(--rose)}
 .catalog-modules{margin-top:25px;background:#fff;border:1px solid var(--line);border-radius:25px;padding:28px;display:grid;grid-template-columns:1fr 2fr;gap:30px}
 .catalog-modules h2{font:600 27px/1.05 'Playfair Display';margin:0}
 .catalog-modules>div:last-child{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}

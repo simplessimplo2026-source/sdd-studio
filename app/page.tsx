@@ -43,6 +43,11 @@ const packageRules = {
     professional: { base: 3000, includedModules: 4, maxModules: 6, label: "Profissional" },
     premium: { base: 5000, includedModules: 8, maxModules: Infinity, label: "Premium" },
 } as const;
+const packages = [
+    { id: "essential", name: "Essencial", description: "Para sites e apps simples", price: "R$ 1.200", features: ["Até 3 telas ou fluxos", "2 módulos incluídos", "Visual profissional baseado no design system", "Módulos extras cobrados à parte"] },
+    { id: "professional", name: "Profissional", description: "Para operações conectadas", price: "R$ 3.000", features: ["Até 8 telas ou fluxos", "4 módulos incluídos", "Dashboard e relatórios essenciais", "Módulos extras cobrados à parte"] },
+    { id: "premium", name: "Premium", description: "Para sistemas completos", price: "R$ 5.000", features: ["Até 15 telas ou fluxos", "8 módulos incluídos", "Experiência visual refinada", "Módulos extras cobrados à parte"] },
+] as const;
 export default function Home() {
     const [screen, setScreen] = useState<"meeting" | "projects" | "catalog">("catalog");
     const [selected, setSelected] = useState<string[]>(["clients", "finance", "service"]);
@@ -256,15 +261,15 @@ export default function Home() {
 </div>
 <button className="new-project" onClick={() => setScreen("meeting")}>Usar em uma reunião</button>
 </section>
-<section className="package-grid">{[["Essencial", "Para sites e apps simples", "R$ 1.200", "Até 3 telas ou fluxos", "2 módulos incluídos", "Visual profissional baseado no design system", "Módulos extras cobrados à parte"], ["Profissional", "Para operações conectadas", "R$ 3.000", "Até 8 telas ou fluxos", "4 módulos incluídos", "Dashboard e relatórios essenciais", "Módulos extras cobrados à parte"], ["Premium", "Para sistemas completos", "R$ 5.000", "Até 15 telas ou fluxos", "8 módulos incluídos", "Experiência visual refinada", "Módulos extras cobrados à parte"]].map((item, index) => <article key={item[0]} className={`package-card ${(index === 0 ? "essential" : index === 1 ? "professional" : "premium") === packageType ? "featured" : ""}`}>
+<section className="package-grid">{packages.map((item, index) => <article key={item.id} className={`package-card ${item.id === packageType ? "is-selected" : ""}`} data-selected={item.id === packageType}>
 <span className="package-number">0{index + 1}</span>
-<p className="eyebrow">PACOTE {item[0].toUpperCase()}</p>
-<h2>{item[0]}</h2>
-<p>{item[1]}</p>
-<strong>{item[2]}</strong>
+<p className="eyebrow">PACOTE {item.name.toUpperCase()}</p>
+<h2>{item.name}</h2>
+<p>{item.description}</p>
+<strong>{item.price}</strong>
 <small>a partir de</small>
-<ul>{item.slice(3).map((feature) => <li key={feature}>{feature}</li>)}</ul>
-<button onClick={() => setPackageType(index === 0 ? "essential" : index === 1 ? "professional" : "premium")}>{(index === 0 ? "essential" : index === 1 ? "professional" : "premium") === packageType ? "Pacote selecionado ✓" : "Selecionar pacote →"}</button>
+<ul>{item.features.map((feature) => <li key={feature}>{feature}</li>)}</ul>
+<button type="button" aria-pressed={item.id === packageType} onClick={() => setPackageType(item.id)}>{item.id === packageType ? "Pacote selecionado ✓" : "Selecionar pacote →"}</button>
 </article>)}</section>
 <section className="package-comparison">
 <div className="comparison-head"><div><p className="eyebrow">COMPARATIVO OBJETIVO</p><h2>O que muda em cada pacote?</h2></div><p>Use esta tabela durante a reunião para alinhar expectativa, investimento e limite de escopo.</p></div>
