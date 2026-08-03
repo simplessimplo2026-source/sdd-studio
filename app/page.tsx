@@ -35,7 +35,6 @@ const modules: Module[] = [
   { id: "automations", icon: "Z", title: "Automações", description: "Tarefas e mensagens acionadas por regras.", price: 600, fields: ["Automações de status", "Notificações", "Tarefas recorrentes", "Regras condicionais"] },
   { id: "integrations", icon: "I", title: "Integrações", description: "WhatsApp, ERP, pagamentos e mais.", price: 400, fields: ["WhatsApp", "Gateway de pagamento", "ERP", "Google Calendar", "API externa"] },
   { id: "portal", icon: "W", title: "Portal / Site", description: "Área pública para clientes e vendas.", price: 600, fields: ["Landing page", "Portal do cliente", "Formulários", "Blog ou conteúdo", "SEO básico"] },
-  { id: "security", icon: "S", title: "Segurança", description: "Acesso, auditoria e proteção de dados.", price: 300, fields: ["Login e recuperação", "Dois fatores", "Log de auditoria", "LGPD e consentimento"] },
 ];
 const securityBaseline = { title: "Segurança padrão", description: "Login, recuperação de acesso, proteção básica de dados e requisitos iniciais de LGPD.", fields: ["Login e recuperação", "Proteção básica de dados", "LGPD e consentimento"] };
 const selectableModules = modules.filter((item) => item.id !== "security");
@@ -177,6 +176,14 @@ export default function Home() {
     useEffect(() => {
         setSelected((current) => current.length > activePackage.maxModules ? current.slice(0, activePackage.maxModules) : current);
     }, [activePackage.maxModules]);
+    useEffect(() => {
+        setSelected((current) => current.filter((moduleId) => moduleId !== "security"));
+        setDetails((current) => {
+            if (!current.security) return current;
+            const { security: _security, ...remainingDetails } = current;
+            return remainingDetails;
+        });
+    }, []);
     async function loadProjects() {
         try {
             const response = await fetch("/api/projects", { cache: "no-store" });
