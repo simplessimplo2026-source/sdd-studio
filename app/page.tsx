@@ -37,6 +37,8 @@ const modules: Module[] = [
   { id: "portal", icon: "W", title: "Portal / Site", description: "Área pública para clientes e vendas.", price: 600, fields: ["Landing page", "Portal do cliente", "Formulários", "Blog ou conteúdo", "SEO básico"] },
   { id: "security", icon: "S", title: "Segurança", description: "Acesso, auditoria e proteção de dados.", price: 300, fields: ["Login e recuperação", "Dois fatores", "Log de auditoria", "LGPD e consentimento"] },
 ];
+const securityBaseline = { title: "Segurança padrão", description: "Login, recuperação de acesso, proteção básica de dados e requisitos iniciais de LGPD.", fields: ["Login e recuperação", "Proteção básica de dados", "LGPD e consentimento"] };
+const selectableModules = modules.filter((item) => item.id !== "security");
 const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 const packageRules = {
     essential: { base: 1200, includedModules: 2, maxModules: 3, label: "Essencial" },
@@ -44,9 +46,9 @@ const packageRules = {
     premium: { base: 5000, includedModules: 8, maxModules: Infinity, label: "Premium" },
 } as const;
 const packages = [
-    { id: "essential", name: "Essencial", description: "Para sites e apps simples", price: "R$ 1.200", features: ["Até 3 telas ou fluxos", "2 módulos incluídos · máximo 3", "Até 3 usuários · 1 perfil de acesso", "Sem integração externa", "1 ciclo de ajustes", "Entrega e orientação de uso"] },
-    { id: "professional", name: "Profissional", description: "Para operações conectadas", price: "R$ 3.000", features: ["Até 8 telas ou fluxos", "4 módulos incluídos · máximo 6", "Até 15 usuários · 3 perfis de acesso", "Até 2 integrações externas", "Dashboard + até 3 relatórios", "2 ciclos de ajustes + treinamento"] },
-    { id: "premium", name: "Premium", description: "Para sistemas completos", price: "R$ 5.000", features: ["Até 15 telas ou fluxos", "8 módulos incluídos · adicionais sem limite", "Até 50 usuários · 5 perfis de acesso", "Até 4 integrações externas", "Dashboard executivo + relatórios estratégicos", "Entrega por etapas + treinamento ampliado"] },
+    { id: "essential", name: "Essencial", description: "Para sites e apps simples", price: "R$ 1.200", features: ["Até 3 telas ou fluxos", "2 módulos incluídos · máximo 3", "Segurança padrão incluída", "Até 3 usuários · 1 perfil de acesso", "Sem integração externa", "1 ciclo de ajustes", "Entrega e orientação de uso"] },
+    { id: "professional", name: "Profissional", description: "Para operações conectadas", price: "R$ 3.000", features: ["Até 8 telas ou fluxos", "4 módulos incluídos · máximo 6", "Segurança padrão incluída", "Até 15 usuários · 3 perfis de acesso", "Até 2 integrações externas", "Dashboard + até 3 relatórios", "2 ciclos de ajustes + treinamento"] },
+    { id: "premium", name: "Premium", description: "Para sistemas completos", price: "R$ 5.000", features: ["Até 15 telas ou fluxos", "8 módulos incluídos · adicionais sem limite", "Segurança padrão incluída", "Até 50 usuários · 5 perfis de acesso", "Até 4 integrações externas", "Dashboard executivo + relatórios estratégicos", "Entrega por etapas + treinamento ampliado"] },
 ] as const;
 type Discovery = { objective: string; users: string; userCount: string; profileCount: string; screenCount: string; pain: string; integrations: string; integrationCount: string; successMetric: string };
 const emptyDiscovery: Discovery = { objective: "", users: "", userCount: "", profileCount: "", screenCount: "", pain: "", integrations: "", integrationCount: "", successMetric: "" };
@@ -82,7 +84,7 @@ export default function Home() {
     const [documents, setDocuments] = useState<SavedDocument[]>([]);
     const [notice, setNotice] = useState("");
     const [saving, setSaving] = useState(false);
-    const selectedModules = selected.map((id) => modules.find((item) => item.id === id)).filter((item): item is Module => Boolean(item));
+    const selectedModules = selected.map((id) => modules.find((item) => item.id === id)).filter((item): item is Module => Boolean(item) && item.id !== "security");
     const activePackage = packageRules[packageType as keyof typeof packageRules] ?? packageRules.professional;
     const activePackageDefinition = packages.find((item) => item.id === packageType) ?? packages[1];
     const packageUserLimits = { essential: 3, professional: 15, premium: 50 } as const;
@@ -355,7 +357,7 @@ export default function Home() {
 <div className="comparison-head"><div><p className="eyebrow">COMPARATIVO OBJETIVO</p><h2>O que muda em cada pacote?</h2></div><p>Use esta tabela durante a reunião para alinhar expectativa, investimento e limite de escopo.</p></div>
 <div className="comparison-table" role="table" aria-label="Comparativo de pacotes">
 <div className="comparison-row comparison-labels" role="row"><span role="columnheader">ENTREGA</span><strong role="columnheader">ESSENCIAL</strong><strong role="columnheader">PROFISSIONAL</strong><strong role="columnheader">PREMIUM</strong></div>
-{[["Investimento base", "R$ 1.200", "R$ 3.000", "R$ 5.000"], ["Para quem", "MVP de um processo", "Operação em crescimento", "Gestão completa e estratégica"], ["Telas e fluxos", "Até 3", "Até 8", "Até 15"], ["Módulos", "2 incluídos · máximo 3", "4 incluídos · máximo 6", "8 incluídos · extras sem limite"], ["Usuários", "Até 3", "Até 15", "Até 50"], ["Perfis de acesso", "1 perfil", "Até 3 perfis", "Até 5 perfis"], ["Integrações", "Não incluídas", "Até 2 integrações", "Até 4 integrações"], ["Dados e relatórios", "Listagens essenciais", "Dashboard + 3 relatórios", "Dashboard executivo + relatórios estratégicos"], ["Ajustes", "1 ciclo", "2 ciclos", "Validação por etapas"], ["Implantação", "Orientação de uso", "Treinamento da equipe", "Treinamento ampliado + entrega assistida"], ["Prazo de referência", "Até 2 semanas", "4 a 6 semanas", "6 a 10 semanas"]].map((row) => <div className="comparison-row" role="row" key={row[0]}><span>{row[0]}</span><strong>{row[1]}</strong><strong>{row[2]}</strong><strong>{row[3]}</strong></div>)}
+{[["Investimento base", "R$ 1.200", "R$ 3.000", "R$ 5.000"], ["Para quem", "MVP de um processo", "Operação em crescimento", "Gestão completa e estratégica"], ["Telas e fluxos", "Até 3", "Até 8", "Até 15"], ["Módulos", "2 incluídos · máximo 3", "4 incluídos · máximo 6", "8 incluídos · extras sem limite"], ["Segurança padrão", "Incluída", "Incluída", "Incluída"], ["Usuários", "Até 3", "Até 15", "Até 50"], ["Perfis de acesso", "1 perfil", "Até 3 perfis", "Até 5 perfis"], ["Integrações", "Não incluídas", "Até 2 integrações", "Até 4 integrações"], ["Dados e relatórios", "Listagens essenciais", "Dashboard + 3 relatórios", "Dashboard executivo + relatórios estratégicos"], ["Ajustes", "1 ciclo", "2 ciclos", "Validação por etapas"], ["Implantação", "Orientação de uso", "Treinamento da equipe", "Treinamento ampliado + entrega assistida"], ["Prazo de referência", "Até 2 semanas", "4 a 6 semanas", "6 a 10 semanas"]].map((row) => <div className="comparison-row" role="row" key={row[0]}><span>{row[0]}</span><strong>{row[1]}</strong><strong>{row[2]}</strong><strong>{row[3]}</strong></div>)}
 </div>
 </section>
 <section className="catalog-modules">
@@ -506,7 +508,7 @@ export default function Home() {
 </div>
 <p>Selecione os módulos que fazem sentido para esta demanda.</p>
 </div>
-<div className="module-legend"><span className="included-dot">Incluído no pacote</span><span className="additional-dot">Adicional cobrado à parte</span></div><div className="module-grid">{modules.map((item) => { const selectedPosition = selected.indexOf(item.id); const moduleState = selectedPosition < 0 ? "" : selectedPosition < activePackage.includedModules ? "selected included" : "selected additional"; return <button key={item.id} className={`module ${moduleState}`} onClick={() => toggleModule(item.id)}>
+<div className="module-legend"><span className="included-dot">Incluído no pacote</span><span className="additional-dot">Adicional cobrado à parte</span></div><div className="security-standard"><span>✓</span><div><strong>{securityBaseline.title}</strong><small>{securityBaseline.description}</small></div><em>Inclusa em todos os pacotes</em></div><div className="module-grid">{selectableModules.map((item) => { const selectedPosition = selected.indexOf(item.id); const moduleState = selectedPosition < 0 ? "" : selectedPosition < activePackage.includedModules ? "selected included" : "selected additional"; return <button key={item.id} className={`module ${moduleState}`} onClick={() => toggleModule(item.id)}>
 <span className="module-icon">{item.icon}</span>
 <span className="module-copy">
 <strong>{item.title}</strong>
