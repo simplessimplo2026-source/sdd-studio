@@ -301,3 +301,8 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:'Plus Jakarta
 .meeting-head h1{font-size:38px}
 .module{min-height:95px}
 }
+
+/* Linguagem visual compartilhada com o SimplO Gestão */
+:root{--ink:#111511;--rose:#16bd79;--paper:#f7f7f5;--line:#e7e9e5}
+body{background-color:var(--paper);background-image:linear-gradient(#e9ece8 1px,transparent 1px),linear-gradient(90deg,#e9ece8 1px,transparent 1px);background-size:30px 30px;color:var(--ink)}
+.topbar{background:#fff;border-color:#e6e8e4;box-shadow:none}.topbar nav button.active,.topbar nav button:hover{color:#111;background:#eff1ed;border-color:#eff1ed}.brand-mark,.avatar{background:#111;color:#fff}.catalog-head h1 span,.meeting-head h1 span,.package-card>strong,.catalog-modules b{color:#16bd79}.package-card.is-selected{border-color:#16bd79;box-shadow:0 10px 30px #16bd791c}.package-card.is-selected button,.primary-button{background:#16bd79!important;color:#fff}.package-card li:before{color:#16bd79}.builder-card,.summary-card,.project-list,.package-comparison,.catalog-modules{border-color:#e2e5e1;box-shadow:none}.discovery-grid{background:#f4f7f3;border-color:#dce6df}.discovery-grid input:focus,.discovery-grid select:focus,.project-form input:focus,.project-form select:focus{border-color:#16bd79;box-shadow:0 0 0 3px #16bd791a}.workflow button.current{color:#16bd79;border-color:#16bd79}.live-dot{background:#e9fbf3;color:#11965f}.meeting-source{border-color:#ccebdc;background:#effbf5;color:#0e8d59}.security-standard{border-color:#ccebdc;background:#effbf5}.summary-card .estimate{background:#111!important;color:#fff}.summary-card .estimate *{color:#fff!important}.notice{background:#fff1f3;color:#c52f50}
