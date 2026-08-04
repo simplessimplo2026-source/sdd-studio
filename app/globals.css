@@ -302,6 +302,9 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:'Plus Jakarta
 .module{min-height:95px}
 }
 
+/* Estado comercial: adicionais continuam em vermelho, independente da paleta principal. */
+.additional-dot:before{background:#e5484d!important}.module.additional{border-color:#e5484d!important;box-shadow:0 0 0 3px #e5484d14!important;background:#fff8f8!important}.module.additional .module-icon{background:#ffe8e8!important;color:#d72d36!important}.module.additional .module-price{color:#d72d36!important}.module.additional .check{background:#e5484d!important}.additionals-note{background:#fff3f3!important;border-color:#f5caca!important}.additionals-note span,.additionals-note b{color:#d72d36!important}
+
 /* Linguagem visual compartilhada com o SimplO Gestão */
 :root{--ink:#111511;--rose:#16bd79;--paper:#f7f7f5;--line:#e7e9e5}
 body{background-color:var(--paper);background-image:linear-gradient(#e9ece8 1px,transparent 1px),linear-gradient(90deg,#e9ece8 1px,transparent 1px);background-size:30px 30px;color:var(--ink)}
