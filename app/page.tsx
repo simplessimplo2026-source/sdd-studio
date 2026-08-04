@@ -23,6 +23,7 @@ type SavedDocument = {
     content: string;
     createdAt: string;
 };
+type MeetingContext = { meetingId: string; type: "new" | "change"; originalProjectId: string; scheduledAt: string };
 const modules: Module[] = [
   { id: "clients", icon: "C", title: "Clientes", description: "Cadastro, histórico e relacionamento.", price: 250, fields: ["Cadastro completo", "Histórico de atendimentos", "Segmentação", "Portal do cliente"] },
   { id: "finance", icon: "$", title: "Financeiro", description: "Contas, fluxo de caixa e cobranças.", price: 500, fields: ["Contas a pagar e receber", "Fluxo de caixa", "Orçamentos", "Comissões", "Boletos e Pix", "Conciliação bancária"] },
@@ -83,6 +84,7 @@ export default function Home() {
     const [documents, setDocuments] = useState<SavedDocument[]>([]);
     const [notice, setNotice] = useState("");
     const [saving, setSaving] = useState(false);
+    const [meetingContext, setMeetingContext] = useState<MeetingContext | null>(null);
     const selectedModules = selected.map((id) => modules.find((item) => item.id === id)).filter((item): item is Module => Boolean(item) && item.id !== "security");
     const activePackage = packageRules[packageType as keyof typeof packageRules] ?? packageRules.professional;
     const activePackageDefinition = packages.find((item) => item.id === packageType) ?? packages[1];
@@ -183,6 +185,21 @@ export default function Home() {
             const { security: _security, ...remainingDetails } = current;
             return remainingDetails;
         });
+    }, []);
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const meetingId = params.get("meetingId");
+        if (!meetingId) return;
+        const type = params.get("type") === "change" ? "change" : "new";
+        setMeetingContext({ meetingId, type, originalProjectId: params.get("projectId") || "", scheduledAt: params.get("scheduledAt") || "" });
+        setClientName(params.get("client") || "");
+        setContactName(params.get("contact") || "");
+        setEmail(params.get("email") || "");
+        setPhone(params.get("phone") || "");
+        setProjectName(params.get("project") || "");
+        setNotes(params.get("objective") || "");
+        setSelected([]); setDetails({}); setSavedProjectId(null); setDocuments([]); setProjectStatus("draft"); setScreen("meeting");
+        window.history.replaceState({}, "", window.location.pathname);
     }, []);
     async function loadProjects() {
         try {
@@ -427,7 +444,7 @@ export default function Home() {
 <strong className="project-value">{money.format(Number(project.estimatedValue))}</strong>
 <span className="row-arrow">→</span>
 </button>) : <div className="empty-state">{projects.length ? "Nenhum projeto encontrado com esses filtros." : <>Nenhum projeto salvo ainda. Crie uma reunião e toque em <strong>Salvar rascunho</strong>.</>}</div>}</section>{notice && <p className="notice">{notice}</p>}</main>;
-    return <main className="app-shell" key="meeting">{header}<section className="meeting-head">
+    return <main className="app-shell" key="meeting">{header}{meetingContext && <div className="meeting-source"><strong>{meetingContext.type === "change" ? "Alteração de projeto" : "Nova reunião agendada"}</strong><span>{meetingContext.type === "change" ? "Registre somente os itens novos ou alterados. O projeto original será preservado." : "Dados recebidos do SimplO Gestão."}</span></div>}<section className="meeting-head">
 <div>
 <p className="eyebrow">REUNIÃO EM ANDAMENTO <i /> {new Date().toLocaleDateString("pt-BR")}</p>
 <h1>Descoberta de projeto<span>.</span>

@@ -182,6 +182,7 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:'Plus Jakarta
 .ghost-button{font-size:11px!important;font-weight:700;text-transform:uppercase;letter-spacing:.09em;padding:11px 14px!important}
 .avatar{width:38px;height:38px;border-radius:50%;background:var(--rose)!important;color:white;font-size:11px!important;font-weight:800!important}
 .meeting-head{display:flex;justify-content:space-between;align-items:end;padding:70px 10px 36px}
+.meeting-source{display:flex;gap:12px;align-items:center;margin:28px 10px -42px;padding:12px 15px;border:1px solid #cde4d3;border-radius:14px;background:#f5fbf6;color:#28613d;font-size:12px}.meeting-source span{color:#5d7967}
 .eyebrow{margin:0 0 10px;font-family:'Geist Mono';font-size:10px;letter-spacing:.13em;font-weight:600;color:#87837b}
 .eyebrow i{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--rose);margin:0 5px 1px}
 .meeting-head h1{font:600 54px/.95 'Playfair Display';letter-spacing:-.04em;margin:0}
