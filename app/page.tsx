@@ -496,9 +496,9 @@ export default function Home() {
 <div className="section-title discovery-title">
 <div>
 <p className="eyebrow">01.1 — DIAGNÓSTICO</p>
-<h2>O que define o sucesso deste projeto?</h2>
+<h2>Qual resultado o cliente espera alcançar?</h2>
 </div>
-<p>Essas respostas entram automaticamente no SDD para orientar a IA e o desenvolvimento.</p>
+<p>Registre o resultado prático que precisa melhorar após a entrega.</p>
 </div>
 <div className="discovery-grid">
 <label>Objetivo principal<input value={discovery.objective} onChange={(event) => setDiscovery((current) => ({ ...current, objective: event.target.value }))} placeholder="Ex.: reduzir o tempo de atendimento"/>
@@ -517,7 +517,7 @@ export default function Home() {
 </label>
 <label>Quantidade de integrações<select value={discovery.integrationCount} onChange={(event) => setDiscovery((current) => ({ ...current, integrationCount: event.target.value }))}><option value="">Selecione</option><option value="0">Nenhuma</option><option value="1">1 integração</option><option value="2">2 integrações</option><option value="3">3 integrações</option><option value="4">4 integrações</option><option value="5">Mais de 4 integrações</option></select>
 </label>
-<label className="discovery-wide">Como saberemos que deu certo?<input value={discovery.successMetric} onChange={(event) => setDiscovery((current) => ({ ...current, successMetric: event.target.value }))} placeholder="Ex.: orçamento emitido em menos de 5 minutos"/>
+<label className="discovery-wide">Resultado esperado pelo cliente<input value={discovery.successMetric} onChange={(event) => setDiscovery((current) => ({ ...current, successMetric: event.target.value }))} placeholder="Ex.: equipe consegue emitir orçamento no atendimento, sem voltar ao escritório"/>
 </label>
 </div>
 {userLimitWarning && <p className="package-fit-warning"><b>Pacote incompatível:</b> {userLimitWarning}</p>}
@@ -617,7 +617,7 @@ export default function Home() {
 <div><span>Usuários</span><strong>{discovery.users || "A definir"}</strong></div>
 <div><span>Quantidade</span><strong>{userCountDisplay}</strong></div>
 <div><span>Dor atual</span><strong>{discovery.pain || "A definir"}</strong></div>
-<div><span>Sucesso</span><strong>{discovery.successMetric || "A definir"}</strong></div>
+<div><span>Resultado esperado</span><strong>{discovery.successMetric || "A definir"}</strong></div>
 </section>
 <section className="sdd-modules">
 <p className="eyebrow">03 — MÓDULOS APROVADOS</p>{selectedModules.map((item, index) => <div key={item.id}>
