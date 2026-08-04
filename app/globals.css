@@ -308,6 +308,9 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:'Plus Jakarta
 /* Cartão de investimento: área escura isolada, com contraste consistente. */
 .summary-card .estimate{margin-top:16px;padding:18px!important;border-radius:16px;background:#111!important;color:#fff!important}.summary-card .estimate div{color:#d8dfda!important}.summary-card .estimate div:last-of-type{border-color:#566058!important;color:#fff!important}.summary-card .estimate strong,.summary-card .estimate b{color:#fff!important}.summary-card .estimate small{color:#aeb9b1!important;line-height:1.55}.selection-list{padding-bottom:2px}.selection-list>p b{background:#eff1ed;color:#111}
 
+/* Resumo comercial leve: o preto fica reservado para ações. */
+.summary-card .estimate{background:#fff!important;border:1px solid #e2e5e1}.summary-card .estimate div{color:#69736c!important}.summary-card .estimate div:last-of-type{border-color:#dfe4df!important;color:#111!important}.summary-card .estimate strong,.summary-card .estimate b{color:#111!important}.summary-card .estimate b{font-family:'Plus Jakarta Sans';font-weight:800}.summary-card .estimate small{color:#778178!important}.summary-card .estimate div:last-of-type span{color:#159965!important;font-weight:700}
+
 /* Linguagem visual compartilhada com o SimplO Gestão */
 :root{--ink:#111511;--rose:#16bd79;--paper:#f7f7f5;--line:#e7e9e5}
 body{background-color:var(--paper);background-image:linear-gradient(#e9ece8 1px,transparent 1px),linear-gradient(90deg,#e9ece8 1px,transparent 1px);background-size:30px 30px;color:var(--ink)}
